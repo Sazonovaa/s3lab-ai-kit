@@ -1,0 +1,7 @@
+{
+  "excludeNames": [
+    ".git",
+    "scripts",
+    "README.md"
+  ]
+}
