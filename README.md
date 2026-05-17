@@ -13,24 +13,46 @@
 - Vendor-specific настройки для Cursor, Claude Code и Codex без дублирования бизнес-правил.
 - Логирование AI usage metadata без prompt content, ответов модели, секретов и персональных данных.
 
+## Prerequisites
+
+Все скрипты в `scripts/ai/` написаны на **PowerShell Core (pwsh)** и работают одинаково на Windows, macOS и Linux. Установите `pwsh`, если его ещё нет:
+
+- **macOS**: `brew install --cask powershell`
+- **Linux**: см. [официальная инструкция Microsoft](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-linux)
+- **Windows 10/11**: `winget install --id Microsoft.PowerShell -e` (или есть из коробки)
+
+Проверка установки:
+
+```bash
+pwsh -Version
+```
+
+Прямой запуск скриптов (одна команда на всех ОС):
+
+```bash
+pwsh -NoProfile -File ./scripts/ai/log-ai-usage.ps1 -Vendor cursor -Event sessionStart
+pwsh -NoProfile -File ./scripts/ai/sync-ai-kit.ps1 -DryRun
+pwsh -NoProfile -File ./scripts/ai/ai-usage-report.ps1 -LastDays 30
+```
+
 ## Как подключить к проекту
 
 В родительском проекте подключите этот репозиторий как submodule:
 
-```powershell
+```bash
 git submodule add http://git-web.tiss.ru/tiss-ai-kit/tiss.ai.kit.standart.git tiss.ai.kit.standart
 git submodule update --init --recursive
 ```
 
 После клонирования проекта, где submodule уже подключён, выполните:
 
-```powershell
+```bash
 git submodule update --init --recursive
 ```
 
 Проверка:
 
-```powershell
+```bash
 git status
 git submodule status
 ```
@@ -95,6 +117,20 @@ git submodule status
 - `.ai/skills/dotnet/clarify_dotnet_project_type.md` — уточнение типа .NET проекта перед созданием.
 - `.ai/skills/dotnet/conventions/geo-distribution.md` — правила geo-sensitive разработки: UTC, RabbitMQ, PostgreSQL, MinIO, compliance и latency.
 
+### Angular skills
+
+- `.ai/skills/angular/feature_implementation_angular.md` — стандарт реализации Angular фичи (standalone, signals, OnPush, разделение smart/presentational).
+- `.ai/skills/angular/angular_unit_tests.md` — unit-тесты Angular (TestBed, signals, моки сервисов, без сетевых вызовов).
+
+### Design skills
+
+- `.ai/skills/design/design_system_contract.md` — контракт дизайна: design tokens, состояния компонентов, a11y AA, hand-off для разработки.
+
+### QA skills
+
+- `.ai/skills/qa/test_plan.md` — формат test plan под фичу/релиз.
+- `.ai/skills/qa/bug_report.md` — формат bug-report (severity, артефакты, без PII).
+
 ### Product, testing, research и writing skills
 
 - `.ai/skills/product/prd_mvp_nocode.md` — подготовка PRD/MVP.
@@ -103,30 +139,65 @@ git submodule status
 - `.ai/skills/research/research_competitors.md` — исследование конкурентов, технологий и рынка.
 - `.ai/skills/writing/article_habr.md` — структура и тон статьи для Habr/VC.
 
-### Subagents
+### Subagents (AI-команда разработки)
 
+Иерархия и ответственность:
+
+```text
+Tech Lead (.ai/subagents/tech_lead.md)
+├── Solution Architect       — кросс-стек архитектура, контракты API/событий
+│   └── Database Architect   — схема БД, индексы, миграции, performance
+│       └── .NET Architect   — архитектура внутри .NET сервиса (Clean Arch / DDD)
+├── Business Analyst         — PRD, user stories, AC, DoR (постановщик)
+├── Planner                  — декомпозиция, риски, зависимости
+├── UX/UI Designer           — user flows, состояния, design tokens, a11y AA
+├── Senior .NET Developer    — реализация backend
+├── Senior Angular Developer — реализация frontend
+├── QA Engineer              — test plan, e2e/smoke, bug-reports
+└── Reviewer                 — второй взгляд на diff
+```
+
+- `.ai/subagents/tech_lead.md` — точка входа для широких / кросс-доменных задач; маршрутизация по ролям.
+- `.ai/subagents/solution_architect.md` — кросс-стек архитектура, контракты API и событий, integrations, ADR.
+- `.ai/subagents/database_architect.md` — схема БД, индексы, миграции, partitioning, performance review.
+- `.ai/subagents/business_analyst.md` — постановщик: PRD, user stories, acceptance criteria, Definition of Ready.
+- `.ai/subagents/ui_designer.md` — UX/UI: user flows, состояния компонентов, design tokens, a11y AA, hand-off для Angular.
+- `.ai/subagents/qa_engineer.md` — test plan, e2e/smoke сценарии Playwright, bug-reports.
 - `.ai/subagents/planner.md` — декомпозиция задачи, риски и зависимости.
 - `.ai/subagents/reviewer.md` — второй взгляд на diff, регрессии, тесты и нарушение слоёв.
-- `.ai/subagents/dotnet/senior_dotnet_developer.md` — основная точка входа для .NET реализации, рефакторинга и создания backend-сервисов.
+- `.ai/subagents/angular/senior_angular_developer.md` — точка входа для реализации, рефакторинга и фичей Angular.
+- `.ai/subagents/dotnet/senior_dotnet_developer.md` — точка входа для .NET реализации, рефакторинга и создания backend-сервисов.
 - `.ai/subagents/dotnet/architect.md` — архитектурные решения и ADR review для .NET Clean Architecture и geo-контекста.
 - `.ai/subagents/dotnet/dotnet_project_clarifier.md` — уточнение типа нового .NET 10 backend-проекта.
 - `.ai/subagents/dotnet/simple_service_builder.md` — создание простого .NET 10 сервиса.
 - `.ai/subagents/dotnet/clean_architecture_service_builder.md` — создание .NET 10 сервиса по Clean Architecture.
 
+Правила маршрутизации:
+- Для **широкой / неясной задачи** — `tech_lead`; он делегирует ролям.
+- Для **узкой задачи** с одной очевидной ролью — идти напрямую в нужный subagent, минуя Tech Lead.
+- Для **архитектурных решений без реализации** — `solution_architect` (кросс-стек), `database_architect` (БД) или `dotnet/architect` (внутри .NET сервиса).
+- Для **реализации** — `senior_dotnet_developer` (backend) или `senior_angular_developer` (frontend).
+
 ### Vendor-specific настройки
 
-- `.cursor/hooks.json` — настройки Cursor hooks: AI usage metadata, shell guard и CRLF validate перед commit.
-- `.cursor/hooks/*.cmd` — Windows wrappers для Cursor hooks.
-- `.cursor/rules/*.mdc` — path-scoped правила Cursor для конкретных типов файлов.
-- `.claude/settings.json` — настройки Claude Code и hooks.
-- `.claude/hooks/*.cmd` — wrappers для Claude Code hooks.
-- `.codex/hooks.json` — hooks для Codex.
-- `.codex/config.toml` — настройки Codex CLI.
+Все vendor-хуки вызывают **один и тот же набор кроссплатформенных pwsh-скриптов** из `scripts/ai/`. Никаких `.cmd` / `.sh` обёрток — одна команда на всех ОС: `pwsh -NoProfile -File ./scripts/ai/<script>.ps1`.
+
+- `.cursor/hooks.json` — Cursor hooks: `sessionStart` (sync submodule + log usage), `beforeShellExecution` (log usage).
+- `.cursor/rules/*.mdc` — path-scoped правила Cursor для конкретных типов файлов (C#, Angular).
+- `.claude/settings.json` — Claude Code hooks: `SessionStart`, `PreToolUse` (Bash).
+- `.codex/hooks.json` — Codex hooks: `sessionStart`, `PreToolUse`.
+- `.codex/config.toml` — `codex_hooks = true` для активации хуков Codex.
 
 ### Скрипты и логи
 
-- `scripts/ai/log-ai-usage.cmd` и `scripts/ai/log-ai-usage.ps1` — запись metadata об AI-сессиях без содержимого prompt и ответов модели.
-- `scripts/ai/ai-usage-report.ps1` — агрегация usage metadata.
+Все скрипты — на PowerShell Core (`pwsh`), работают на Windows / macOS / Linux. См. раздел [Prerequisites](#prerequisites) выше.
+
+- `scripts/ai/log-ai-usage.ps1` — запись metadata об AI-сессиях (vendor, event, skill/subagent) без содержимого prompt и ответов модели.
+- `scripts/ai/ai-usage-report.ps1` — агрегация usage metadata за период.
+- `scripts/ai/sync-ai-kit.ps1` — копирование содержимого AI-kit submodule в корень сервисного репо.
+- `scripts/ai/sync-submodule-on-start.ps1` — авто-fast-forward submodule на старте сессии.
+- `scripts/ai/ai-kit.default-path` — путь к kit submodule по умолчанию.
+- `scripts/ai/ai-kit.sync-exclude.json` — top-level имена, исключаемые при синхронизации.
 - `logs/ai-usage.jsonl` — локальный журнал AI usage metadata.
 - `logs/.gitignore` — правила, чтобы в git не попадали лишние runtime-логи.
 

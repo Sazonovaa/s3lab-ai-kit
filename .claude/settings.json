@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "pwsh -NoProfile -File ./scripts/ai/sync-submodule-on-start.ps1" },
+          { "type": "command", "command": "pwsh -NoProfile -File ./scripts/ai/log-ai-usage.ps1 -Vendor claude-code -Event SessionStart" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "pwsh -NoProfile -File ./scripts/ai/log-ai-usage.ps1 -Vendor claude-code -Event PreToolUse" }
+        ]
+      }
+    ]
+  }
+}

@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 
 if ([string]::IsNullOrWhiteSpace($LogPath)) {
     $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-    $LogPath = Join-Path $repoRoot "logs\ai-usage.jsonl"
+    $LogPath = Join-Path $repoRoot "logs/ai-usage.jsonl"
 }
 
 if (-not (Test-Path $LogPath)) {

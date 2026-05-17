@@ -27,18 +27,22 @@
 ## Claude Code / Codex (vendor, в репозитории)
 | Path | Role |
 |------|------|
-| `.claude/settings.json` | Конфиг Claude Code; блок `hooks` — по [доке](https://code.claude.com/docs/en/hooks) (сейчас пустой `{}`) |
+| `.claude/settings.json` | Конфиг Claude Code; блок `hooks` вызывает `pwsh -NoProfile -File ./scripts/ai/*.ps1` |
 | `.codex/config.toml` | Конфиг Codex; `codex_hooks = true` для проектных hooks |
-| `.codex/hooks.json` | Хуки Codex: startup sync и AI usage metadata |
+| `.codex/hooks.json` | Хуки Codex: `sessionStart` (sync + log), `PreToolUse` (log) |
 
 ## Cursor-specific
 | Path | Role |
 |------|------|
-| `.cursor/AGENTS.md` | Доп. правила workspace (тесты xUnit+Moq) |
-| `.cursor/rules/*.mdc` | Path-scoped правила C# / тестов / (при появлении) Angular |
-| `.cursor/hooks.json` | Пилот: AI usage metadata, shell guard + CRLF validate перед commit |
-| `.cursor/hooks/*.cmd` | Cursor hook wrappers для Windows shell |
-| `scripts/ai/*.cmd` / `scripts/ai/*.ps1` | Общие AI scripts: sync, usage logging, usage report |
+| `.cursor/rules/*.mdc` | Path-scoped правила C# / Angular |
+| `.cursor/hooks.json` | AI usage metadata + sync-submodule на старте сессии |
+
+## Cross-platform скрипты
+| Path | Role |
+|------|------|
+| `scripts/ai/*.ps1` | Единые pwsh-скрипты (Win/macOS/Linux): sync-kit, sync-submodule, log usage, usage report |
+| `scripts/ai/ai-kit.default-path` | Путь по умолчанию до AI-kit submodule |
+| `scripts/ai/ai-kit.sync-exclude.json` | Top-level имена, исключаемые при синхронизации |
 
 ## Minimum skills (must exist in repo)
 - `prd_mvp_nocode.md` — product MVP
@@ -51,15 +55,26 @@
 - `dotnet/conventions/geo-distribution.md` — гео-распределение: UTC, RabbitMQ, PostgreSQL, MinIO, compliance
 - `repository_layer_audit.md` — аудит `*Repository*`
 - `webapp_testing.md` — Playwright / web QA
+- `qa/test_plan.md` — формат test plan под фичу/релиз
+- `qa/bug_report.md` — формат bug-report
+- `angular/feature_implementation_angular.md` — стандарт реализации Angular фичи
+- `angular/angular_unit_tests.md` — unit-тесты Angular
+- `design/design_system_contract.md` — контракт дизайна и hand-off
 - `research_competitors.md` — исследование рынка/инструментов
 - `article_habr.md` — статья Habr/VC
 
 ## Minimum subagents
+- `tech_lead.md` — оркестратор широких / кросс-доменных задач
+- `solution_architect.md` — кросс-стек архитектура, контракты, integrations
+- `database_architect.md` — схема БД, индексы, миграции, performance
+- `business_analyst.md` — постановщик: PRD, AC, DoR
+- `ui_designer.md` — UX/UI, состояния, design tokens, a11y AA
+- `qa_engineer.md` — test plan, e2e/smoke, bug-reports
 - `planner.md` — декомпозиция и риски
 - `reviewer.md` — вторая голова по диффу
-- `dotnet/senior_dotnet_developer.md` — основная точка входа для .NET реализации и делегирования builder/clarifier/architect
-- `dotnet/architect.md` — архитектурные решения и ADR review под Clean Architecture и geo
-- `dotnet/clean_architecture_service_builder.md` — создание .NET 10 сервиса по Clean Architecture через skill-contract
+- `angular/senior_angular_developer.md` — точка входа для Angular реализации
+- `dotnet/senior_dotnet_developer.md` — точка входа для .NET реализации; делегирует builder/clarifier/architect
+- `dotnet/architect.md` — архитектурные решения внутри .NET сервиса и ADR review
 
-## Angular (когда появится код в репозитории)
-- Добавить `.cursor/rules/angular-ai.mdc` с glob на `*.ts` / `*.html` приложения и skill `feature_implementation_angular.md` по шаблону существующих skills.
+## Vendor-specific path-scoped rules
+- `.cursor/rules/angular-ai.mdc` — path-scoped правила Cursor для `*.component.ts` / `*.service.ts` / `app/**/*.html` (Angular standalone, signals, OnPush, a11y).

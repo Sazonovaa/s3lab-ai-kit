@@ -24,6 +24,22 @@
 2) совпадение по метаданным файла маршрута, заголовку, описанию, triggers или роли;
 3) ближайшее совпадение по ожидаемому артефакту из таблицы ниже.
 
+### Специальное правило: оркестрация команды (широкие/неопределённые задачи)
+Если запрос охватывает несколько ролей (backend + frontend + БД + QA + дизайн + постановка) или сформулирован как «организуй / распиши / спланируй команду / разнеси по ролям» — выбрать ровно один route:
+
+1. **tech_lead** → `.ai/subagents/tech_lead.md`
+   Tech Lead сам делегирует в `solution_architect`, `database_architect`, `business_analyst`, `planner`, `ui_designer`, `qa_engineer`, `senior_dotnet_developer`, `senior_angular_developer` и `reviewer`.
+
+Если задача узкая и роль очевидна — не идти через Tech Lead, а выбирать прямой маршрут из таблицы ниже.
+
+### Специальное правило: Angular frontend-реализация
+Если пользователь просит реализовать, изменить, отрефакторить компонент / экран / фичу / форму / маршрут в Angular, выбрать ровно один route:
+
+1. **senior_angular_developer** → `.ai/subagents/angular/senior_angular_developer.md`
+   Точка входа для всей реализации Angular. Сам решает, когда обращаться к `ui_designer` за hand-off, к `solution_architect` за контрактом API, и когда писать тесты.
+2. **angular-specific skill** → `.ai/skills/angular/*.md`
+   Выбирать напрямую только для узких задач: реализация фичи по контракту, написание unit-тестов.
+
 ### Специальное правило: .NET backend-реализация
 Если пользователь просит реализовать, изменить, отрефакторить или создать `.NET` / `C#` сервис, API, микросервис, worker или backend, выбрать ровно один route:
 
@@ -37,7 +53,20 @@
 ### Таблица маршрутов
 | Категория | Тип маршрута | Файл маршрута | Когда использовать |
 |---|---|---|---|
-
+| engineering | subagent | `.ai/subagents/tech_lead.md` | Широкие / кросс-доменные задачи; маршрутизация по ролям команды |
+| engineering | subagent | `.ai/subagents/solution_architect.md` | Кросс-стек архитектура, контракты API/событий, integrations, ADR |
+| engineering | subagent | `.ai/subagents/database_architect.md` | Архитектура БД: схема, индексы, миграции, partitioning, perf review |
+| product | subagent | `.ai/subagents/business_analyst.md` | Постановка задачи: PRD, user stories, acceptance criteria, DoR |
+| engineering | subagent | `.ai/subagents/ui_designer.md` | UX / UI: user flows, состояния, design tokens, a11y AA |
+| testing | subagent | `.ai/subagents/qa_engineer.md` | Test plan, e2e/smoke, регрессии, bug-reports |
+| engineering | subagent | `.ai/subagents/planner.md` | Декомпозиция, риски, зависимости (без реализации) |
+| engineering | subagent | `.ai/subagents/reviewer.md` | Второй взгляд на уже сделанные изменения и diff |
+| engineering | subagent | `.ai/subagents/angular/senior_angular_developer.md` | Точка входа для реализации, рефакторинга и фичей Angular |
+| engineering | skill | `.ai/skills/angular/feature_implementation_angular.md` | Стандарт реализации Angular фичи (standalone, signals, OnPush) |
+| engineering | skill | `.ai/skills/angular/angular_unit_tests.md` | Unit-тесты Angular (TestBed, signals, моки) |
+| design | skill | `.ai/skills/design/design_system_contract.md` | Контракт дизайна: tokens, состояния, a11y AA, hand-off |
+| testing | skill | `.ai/skills/qa/test_plan.md` | Формат test plan под фичу / релиз |
+| testing | skill | `.ai/skills/qa/bug_report.md` | Формат bug-report (severity, артефакты, без PII) |
 | engineering | skill | `.ai/skills/engineering/create_skill.md` | Добавить или изменить skill в **`.ai/skills/`** и строку в **`.ai/router.md`** |
 | engineering | skill | `.ai/skills/engineering/code_review_before_push.md` | Локальное ревью перед push: текущий diff, архитектурные риски, готовность к публикации |
 | engineering | skill | `.ai/skills/engineering/code_review_after_mr.md` | Ревью MR/PR после создания: готовность к merge, контракты, риски, тесты |
@@ -82,13 +111,16 @@
   - финальный ответ пользователю сформировать по разделу **Output** выбранного subagent.
 
 ## Output Contract (по умолчанию)
-Если выбранный маршрут не переопределяет формат, каждый ответ оформлять так:
+Каждый ответ начинается с обязательного header'а из `AGENTS.md` (`Model:` / `Route:` / опционально `Delegated:`). После header'а тело ответа оформлять так:
 
-1) **Plan** (2–6 пунктов)
-2) **Deliverable** (артефакт, который запросил пользователь)
-3) **Self-check** (3–7 пунктов чеклиста)
+1) **Route rationale** (1 строка) — почему выбран именно этот route
+2) **Plan** (2–6 пунктов)
+3) **Deliverable** (артефакт, который запросил пользователь)
+4) **Self-check** (3–7 пунктов чеклиста)
 
-Если пользователь явно просит «только финальный результат», убрать Plan и оставить только Deliverable + Self-check.
+Если пользователь явно просит «только финальный результат», убрать Plan и Route rationale, оставить header + Deliverable + Self-check. Header пропускать **нельзя** ни при каких условиях.
+
+Если выбранный маршрут переопределяет формат тела (`Output (strict)` в subagent или `Output format` в skill), следовать ему, но header сохранять.
 
 ## Safety / Quality gates (всегда включены)
 - Не выдумывать файлы, API или метрики. Если есть неопределённость — явно указать её и предложить проверку.
