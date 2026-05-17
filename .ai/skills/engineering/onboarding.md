@@ -68,12 +68,14 @@ triggers:
 - Создание .NET сервисов: senior-subagent делегирует в `clean_architecture_service_builder.md`, `simple_service_builder.md` или `dotnet_project_clarifier.md`.
 - Локальное ревью: `.ai/skills/engineering/code_review_before_push.md`.
 - MR/PR ревью: `.ai/skills/engineering/code_review_after_mr.md`.
+- Аудит ambient-зависимостей (время, guid, env, fs, random, culture, прямой `HttpClient`): `.ai/skills/engineering/ambient_dependencies_audit.md`.
 - Второй взгляд: `.ai/subagents/reviewer.md`.
 - Архитектурные решения: `.ai/subagents/dotnet/architect.md`.
 
 # Review flow
 - Перед push проверить текущий diff через `code_review_before_push.md`.
 - Перед merge проверить MR/PR через `code_review_after_mr.md`.
+- Если diff затрагивает время, генерацию идентификаторов, чтение окружения, файловую систему, рандом, культуру или прямой `HttpClient` — обязательный чек-лист в `ambient_dependencies_audit.md` (замена на port-интерфейс для возможности мокирования).
 - Для сложных изменений запросить `reviewer.md`.
 - Для архитектурных решений или ADR запросить `dotnet/architect.md`.
 - Все замечания оформлять по `docs/review/CODE_REVIEW.md`.

@@ -76,6 +76,7 @@
 | engineering | skill | `.ai/skills/engineering/onboarding.md` | Онбординг разработчика: стек, локальная среда, AI-инструменты, review flow |
 | engineering | skill | `.ai/skills/dotnet/dotnet_unit_tests_xunit_moq.md` | Написать или проверить unit-тесты на **xUnit + Moq**: Theory с `expectedResult` (enum/scalar/combined), мок DI/времени/окружения, decomposition triggers, единые правила именования и группировки |
 | engineering | skill | `.ai/skills/engineering/repository_layer_audit.md` | Классы с именем `*Repository*`: доступ к данным против бизнес-логики |
+| engineering | skill | `.ai/skills/engineering/ambient_dependencies_audit.md` | Аудит прямых обращений к ambient API (`DateTime.UtcNow`, `Guid.NewGuid`, `Environment.*`, `File.*`, `Random`, `CultureInfo.Current*`, прямой `HttpClient`) и обязательная замена на port-интерфейс |
 | engineering | skill | `.ai/skills/dotnet/create_solution_dotnet10.md` | Новое backend-решение **.NET 10**, **`.slnx`** / SLNX-каркас, структура `net10.0` |
 | engineering | subagent | `.ai/subagents/dotnet/senior_dotnet_developer.md` | Основная точка входа для реализации, рефакторинга и создания .NET backend-сервисов; делегирует builder/clarifier/architect |
 | engineering | subagent | `.ai/subagents/dotnet/dotnet_project_clarifier.md` | Внутренний делегат senior-subagent: уточнить тип нового **.NET 10** backend-проекта |

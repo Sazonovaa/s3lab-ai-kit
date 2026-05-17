@@ -39,11 +39,12 @@ triggers:
 # Процедура
 1) Прочитать общий стандарт [`docs/review/CODE_REVIEW.md`](../../../docs/review/CODE_REVIEW.md).
 2) Если MR затрагивает регионы, время, локализацию, RabbitMQ, PostgreSQL или MinIO — прочитать [`geo-distribution.md`](../dotnet/conventions/geo-distribution.md).
-3) Определить границу MR: API, persistence, auth, messaging, UI/API contracts.
-4) Проверить обратную совместимость, миграции, security/auth и production-риски.
-5) Проверить слои Clean Architecture и отсутствие бизнес-логики в репозиториях к БД.
-6) Оценить тесты, моки границ, покрытие изменённого поведения и отсутствие зависимости unit-тестов от реальной БД.
-7) Разделить замечания на блокеры и nits.
+3) Если diff затрагивает время, генерацию идентификаторов, чтение окружения, файловую систему, рандом, культуру или прямой `HttpClient` — прочитать [`ambient_dependencies_audit.md`](ambient_dependencies_audit.md) и применить как обязательный чек-лист блокеров.
+4) Определить границу MR: API, persistence, auth, messaging, UI/API contracts.
+5) Проверить обратную совместимость, миграции, security/auth и production-риски.
+6) Проверить слои Clean Architecture и отсутствие бизнес-логики в репозиториях к БД.
+7) Оценить тесты, моки границ, покрытие изменённого поведения и отсутствие зависимости unit-тестов от реальной БД.
+8) Разделить замечания на блокеры и nits.
 
 # Формат вывода
 1) **Вердикт:** `approve` | `approve_with_nits` | `request_changes`

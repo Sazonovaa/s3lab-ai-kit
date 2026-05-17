@@ -55,6 +55,8 @@ triggers:
 - Создание или изменение skill: `.ai/skills/engineering/create_skill.md`.
 - Локальное ревью перед push: `.ai/skills/engineering/code_review_before_push.md`.
 - MR/PR ревью перед merge: `.ai/skills/engineering/code_review_after_mr.md`.
+- Аудит ambient-зависимостей (`DateTime.UtcNow`, `Guid.NewGuid`, `Environment.*`, `File.*`, `Random`, `CultureInfo.Current*`, прямой `HttpClient`) с обязательной заменой на port-интерфейс: `.ai/skills/engineering/ambient_dependencies_audit.md`.
+- Аудит классов `*Repository*` против бизнес-логики: `.ai/skills/engineering/repository_layer_audit.md`.
 - Второй взгляд на сложный diff: `.ai/subagents/reviewer.md`.
 - Архитектурные trade-offs и ADR: `.ai/subagents/dotnet/architect.md`.
 

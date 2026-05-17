@@ -103,6 +103,7 @@ git submodule status
 - `.ai/skills/engineering/code_review_before_push.md` — локальное ревью текущего diff перед push.
 - `.ai/skills/engineering/code_review_after_mr.md` — ревью MR/PR перед merge.
 - `.ai/skills/engineering/repository_layer_audit.md` — аудит классов `*Repository*`: в репозиториях должен быть доступ к данным, а не бизнес-логика.
+- `.ai/skills/engineering/ambient_dependencies_audit.md` — аудит прямых обращений к ambient API (`DateTime.UtcNow`, `Guid.NewGuid`, `Environment.*`, `File.*`, `Random`, `CultureInfo.Current*`, прямой `HttpClient`) и обязательная замена на port-интерфейс для мокирования в тестах.
 - `.ai/skills/engineering/create_skill.md` — процедура создания или изменения skill в `.ai/skills/**` и строки в `.ai/router.md`.
 
 ### .NET skills
@@ -206,6 +207,7 @@ Tech Lead (.ai/subagents/tech_lead.md)
 - Изменения в `.ai/**`, `AGENTS.md`, политиках и vendor-specific настройках проходят через MR + review.
 - Secrets, токены, private keys, connection strings с паролями, production dumps и PII нельзя отправлять в AI prompts, logs и telemetry.
 - AI-assisted Code Review обязателен перед push и перед merge в `develop` или `main`.
+- Прямые обращения к ambient API (`DateTime.UtcNow`, `Guid.NewGuid`, `Environment.*`, `File.*`, `Random`, `CultureInfo.Current*`, прямой `HttpClient`) в production-коде запрещены — только через port-интерфейс (`IClock`, `IGuidProvider`, `IRandomProvider`, `IFileSystem`, `IEnvironmentProvider`, `ICultureProvider`, `IHttpClientFactory`); чек-лист в `.ai/skills/engineering/ambient_dependencies_audit.md`.
 - Для .NET unit-тестов используется `xUnit + Moq`; NUnit не добавлять.
 - Для backend API по умолчанию использовать порт `5001`, если задача требует локального запуска сервера.
 - Для geo-sensitive задач учитывать UTC, data residency, RabbitMQ DLQ/retry, PostgreSQL индексы и MinIO access policy.

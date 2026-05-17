@@ -54,6 +54,7 @@
 - `dotnet_unit_tests_xunit_moq.md` — модульные тесты .NET
 - `dotnet/conventions/geo-distribution.md` — гео-распределение: UTC, RabbitMQ, PostgreSQL, MinIO, compliance
 - `repository_layer_audit.md` — аудит `*Repository*`
+- `engineering/ambient_dependencies_audit.md` — аудит прямых обращений к ambient API (`DateTime.UtcNow`, `Guid.NewGuid`, `Environment.*`, `File.*`, `Random`, `CultureInfo.Current*`, прямой `HttpClient`) и обязательная замена на port-интерфейс для мокирования в тестах
 - `webapp_testing.md` — Playwright / web QA
 - `qa/test_plan.md` — формат test plan под фичу/релиз
 - `qa/bug_report.md` — формат bug-report

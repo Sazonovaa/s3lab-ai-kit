@@ -73,7 +73,7 @@
 
 **Общие для обеих команд:** code review, мелкий рефакторинг, написание ADR, подготовка PR-описания, разбор CI, security checklist (секреты, PII), onboarding «как попросить агента».
 
-**.NET-специфика:** новый endpoint/handler, миграции и слой infrastructure, FluentValidation/MediatR-паттерны (если у вас так принято), `dotnet format`/анализаторы, производительность и логирование, **генерация/ревью модульных тестов по skill `dotnet_unit_tests_xunit_moq`**, **аудит репозиториев по skill `repository_layer_audit`**.
+**.NET-специфика:** новый endpoint/handler, миграции и слой infrastructure, FluentValidation/MediatR-паттерны (если у вас так принято), `dotnet format`/анализаторы, производительность и логирование, **генерация/ревью модульных тестов по skill `dotnet_unit_tests_xunit_moq`**, **аудит репозиториев по skill `repository_layer_audit`**, **аудит прямых обращений к ambient API (`DateTime.UtcNow`, `Guid.NewGuid`, `Environment.*`, `File.*`, `Random`, `CultureInfo.Current*`, прямой `HttpClient`) и замена на port-интерфейс по skill `ambient_dependencies_audit`**.
 
 **Angular-специфика:** новый feature-module/slice, компонент только презентационный, работа с RxJS/signals, lazy routes, a11y/i18n, стратегия тестов (Jest/Karma — что у вас).
 
@@ -313,6 +313,7 @@ flowchart LR
 - **Покрытие состояний**: для каждого входного параметра перечислить **допустимые классы эквивалентности** (null/пустая строка/граница диапазона/типичное/невалидный формат и т.д. — по контракту метода); если вариантов много — `MemberData` из статического провайдера, а не десятки копий одного теста.
 - **Доступ к данным**: в модульных тестах **мокать** интерфейсы репозиториев / `DbContext` factory / unit-of-work — то, что отвечает за доступ к БД; не поднимать Testcontainers внутри «модульного» skill без явного запроса.
 - **Аудит репозитория**: при работе с классом `*Repository*` агент обязан (1) проверить отсутствие бизнес-правил, ветвлений по доменным смыслам, композиции юз-кейсов; (2) при нахождении — **явная секция «Рефакторинг»**: что вынести (доменный сервис, application handler, domain service, specification), пример сигнатур, минимальный план миграции. Это отдельный skill, подключаемый из router для задач «тесты + репозиторий».
+- **Аудит ambient-зависимостей**: прямые вызовы `DateTime.UtcNow`, `DateTime.Now`, `DateTimeOffset.UtcNow`, `Guid.NewGuid()`, `new Random()`, `Random.Shared`, `Environment.*`, `File.*`, `Directory.*`, `CultureInfo.CurrentCulture`, `new HttpClient(...)`, `ClaimsPrincipal.Current`, `Thread.CurrentPrincipal` в production-коде (Domain / Application / Infrastructure handlers и services) **запрещены** — обязательная замена на port-интерфейс (`IClock`, `IGuidProvider`, `IRandomProvider`, `IEnvironmentProvider`, `IFileSystem`, `ICultureProvider`, `IHttpClientFactory`, `ICurrentUserProvider`) для возможности мокирования в `Mock<T>`. Реальные вызовы допустимы только в Infrastructure-адаптерах, реализующих port, и в `Program.cs` / DI-биндинге. Скил `ambient_dependencies_audit` содержит таблицу «API → port», процедуру аудита, формат `clean` / `needs_refactor` и рекомендованный snippet `BannedSymbols.txt` для `Microsoft.CodeAnalysis.BannedApiAnalyzers`.
 
 ---
 
@@ -338,6 +339,7 @@ repo-root/
       engineering/code_review_after_mr.md
       dotnet_unit_tests_xunit_moq.md
       repository_layer_audit.md
+      engineering/ambient_dependencies_audit.md
     subagents/
       planner.md
       reviewer.md
@@ -401,7 +403,7 @@ repo-root/
 1. **Каталог направлений** — блоки 1–11 выше (оси стандартизации, включая мультивендор).
 2. **Ответ про «стандартные списки»** — их нет как единого официального набора; есть типы артефактов Cursor + ваш корпоративный минимальный набор; для Claude/Codex — те же **содержимые** playbooks в git, разная **обвязка** у каждого продукта.
 3. **Стартовый набор skills (пример состава, не канон)**  
-   - `code_review`, `ci_failure_triage`, `feature_implementation_dotnet`, `feature_implementation_angular`, `security_prompt_check`, `adr_authoring`, `onboarding_repo`, **`dotnet_unit_tests_xunit_moq`**, **`repository_layer_audit`** — имена и границы согласовать с командами; последние два отражают вашу политику тестов и чистоты слоя данных.
+   - `code_review`, `ci_failure_triage`, `feature_implementation_dotnet`, `feature_implementation_angular`, `security_prompt_check`, `adr_authoring`, `onboarding_repo`, **`dotnet_unit_tests_xunit_moq`**, **`repository_layer_audit`**, **`ambient_dependencies_audit`** — имена и границы согласовать с командами; последние три отражают вашу политику тестов, чистоты слоя данных и изоляции ambient-зависимостей через port-интерфейсы.
 4. **Матрица hooks и конфигов** — [.ai/multi_vendor_tool_matrix.md](../../.ai/multi_vendor_tool_matrix.md).
 5. **Пример дерева каталогов** — раздел «Пример структуры файлов» выше в этом документе.
 6. **Сводка хуков и триггеров** — раздел «Сводка: хуки и триггеры» выше в этом документе.
@@ -416,5 +418,6 @@ repo-root/
 - [ ] Добавлены Claude и Codex: переносимый слой vs vendor-specific и ось 11 в направлениях.
 - [ ] Пример дерева файлов и чеклист каталогов **согласованы** с порядком колонок на схеме (vendorOptional → sharedAll → cursorOnly → claudeOnly → codexOnly).
 - [ ] Зафиксированы xUnit + Moq, Theory/данные, мок репозиториев, обязательный аудит BL в репозиториях с предложениями рефакторинга.
+- [ ] Зафиксирован запрет прямых обращений к ambient API в production-коде с обязательной заменой на port-интерфейс (skill `ambient_dependencies_audit`).
 - [ ] На схеме минимума отражены входы Claude и Codex и перечислены все предлагаемые каталоги чеклистом.
 - [ ] Зафиксирована сводка: AI hooks vs GitLab Webhooks vs CI vs связка MR/Jira; вики как слой документирования процесса (не хук).

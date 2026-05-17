@@ -12,9 +12,10 @@
 4. Границы Clean Architecture.
 5. Persistence, миграции и владение базой данных.
 6. Отсутствие бизнес-логики в репозиториях к БД.
-7. Тесты, логирование и наблюдаемость.
-8. Именование, читаемость и поддерживаемость.
-9. Соответствие файловым правилам: CRLF для текстовых файлов перед коммитом.
+7. Изоляция ambient-зависимостей (время, guid, env, fs, random, culture, прямой `HttpClient`) через port-интерфейсы.
+8. Тесты, логирование и наблюдаемость.
+9. Именование, читаемость и поддерживаемость.
+10. Соответствие файловым правилам: CRLF для текстовых файлов перед коммитом.
 
 ## Правила архитектуры
 
@@ -29,6 +30,21 @@
 - Enums должны находиться в `Enums/`.
 - Value objects должны находиться в `ValueObjects/`.
 - В одном файле описывайте только один объект.
+
+## Правила недетерминизма и ambient-зависимостей
+
+- Прямые обращения к недетерминистичным / ambient API в production-коде (Domain, Application, Infrastructure handlers и services) запрещены. Источник истины и детальный чек-лист — [`.ai/skills/engineering/ambient_dependencies_audit.md`](../../.ai/skills/engineering/ambient_dependencies_audit.md).
+- Замена должна быть выполнена через port-интерфейс, который пробрасывается через конструктор и мокается в тестах `Mock<T>`:
+  - `DateTime.UtcNow`, `DateTime.Now`, `DateTimeOffset.UtcNow`, `DateTimeOffset.Now` → `IClock` (или `TimeProvider`).
+  - `Guid.NewGuid()`, `Guid.CreateVersion7()` → `IGuidProvider`.
+  - `new Random()`, `Random.Shared.*` → `IRandomProvider`.
+  - `Environment.GetEnvironmentVariable`, `Environment.MachineName`, `Environment.UserName`, `Environment.ProcessId`, `Environment.CurrentDirectory` → `IOptions<T>` (через configuration binding) или `IEnvironmentProvider`.
+  - `File.*`, `Directory.*`, `Path.GetTempFileName`, `Path.GetTempPath` → `IFileSystem`.
+  - `CultureInfo.CurrentCulture`, `CultureInfo.CurrentUICulture` → `ICultureProvider` или явный параметр метода.
+  - `new HttpClient(...)`, прямой `HttpClient` → `IHttpClientFactory` + типизированный клиент с интерфейсом.
+  - `Thread.CurrentPrincipal`, `ClaimsPrincipal.Current` → `ICurrentUserProvider`.
+- Реальные вызовы перечисленных API допускаются только в Infrastructure-адаптерах, реализующих соответствующий port-интерфейс (`SystemClock : IClock`, `GuidProvider : IGuidProvider`, `SystemFileSystem : IFileSystem` и т. п.), а также в `Program.cs` / `Startup` при DI-биндинге.
+- Любое нарушение фиксируется как блокер ревью с целевым port-интерфейсом и планом рефакторинга (новый порт → адаптер → DI → замена вызова → unit-тест с моком).
 
 ## Правила стиля и реализации
 
