@@ -24,6 +24,9 @@ triggers:
   - IClock
   - IDateTimeProvider
   - decompose for tests
+  - split theory
+  - tuple expected
+  - Assert.Equal tuple
   - test naming
   - тест на репозиторий
 ---
@@ -63,79 +66,88 @@ triggers:
   - Статические поля / синглтоны, шарящие состояние между тестами.
 
 # Шаблон Theory с `expectedResult`
-Все параметризованные тесты пишутся в одной из трёх форм. Форма выбирается по природе результата SUT.
+Все параметризованные тесты подчиняются одному правилу:
 
-## Таблица выбора формы
-| Что тестирует SUT                                  | Форма | Тип параметра `expected`             | Assert                          |
-|----------------------------------------------------|-------|--------------------------------------|---------------------------------|
-| Классификацию исхода (success/validation/notfound) | A     | `enum <Feature>ExpectedResult`       | `switch` по `expected`          |
-| Детерминированное вычисление конкретного значения  | B     | скаляр (`int`, `string`, `decimal`, `Guid`, `bool`, `DateTime`) | одна ассерт-строка `Assert.Equal` |
-| И категорию исхода, и конкретный payload           | C     | `enum expectedOutcome` + скаляр `expectedValue` | короткий `switch` + сравнение payload |
+> **`expectedResult` — это полностью описанный ожидаемый исход. Assert — одна декларативная инструкция эквивалентности. Никаких `switch` / `if` / `?:` в Assert-блоке.**
 
-Сложные объекты в `[InlineData]` запрещены (CLR-ограничение и хрупкость) — для них использовать `[MemberData]` с фабрикой `TheoryData<...>` или Test Data Builder.
+Если в одном Theory кейсы проверяют **разные по форме** результаты (например, success проверяет `Id`, а failure — `ErrorCode`) — это **разные Theory-методы**. Не пытаться втиснуть всё в один Theory с веткой в Assert.
 
-## Форма A — enum-категория
-Применять, когда тест проверяет, **к какой категории** относится результат, а конкретное значение второстепенно.
+## Таблица выбора формы (по приоритету)
+| Что тестирует SUT                                                                 | Форма | Тип параметра `expected`                                            | Assert                                          |
+|-----------------------------------------------------------------------------------|-------|---------------------------------------------------------------------|-------------------------------------------------|
+| Разные сценарии с **разной формой ожидания** (success vs failure разные поля)     | 1 (предпочтительно) | один скаляр / простой набор полей одного смысла | `Assert.Equal(expected, actual)` — одна строка  |
+| Детерминированное вычисление одного значения (расчёт, парсинг, форматирование)    | 2     | скаляр (`int`, `string`, `decimal`, `Guid`, `bool`, `DateTime`)     | `Assert.Equal(expected, actual)`                |
+| Все кейсы проверяют **одинаковый** набор полей одной структуры (fallback)         | 3     | несколько примитивных параметров, собираемых в кортеж/`record`      | одно `Assert.Equal((...), (...))` без switch    |
+
+Сложные объекты в `[InlineData]` запрещены (CLR-ограничение) — для них `[MemberData]` с `TheoryData<...>` или Test Data Builder.
+
+## Форма 1 — Split Theory (предпочтительно)
+Принцип: **«одна форма ожидания — один Theory-метод»**. Кейсы группируются не по типу входа, а по типу проверки. Каждый метод заканчивается одной декларативной ассерт-строкой.
 
 ```csharp
-public enum CreateUserExpectedResult
-{
-    Success,
-    ValidationFailed,
-    AlreadyExists,
-    ExternalUnavailable,
-}
-
 public sealed class CreateUserCommandHandlerTests
 {
     [Theory]
-    [InlineData("", "John", CreateUserExpectedResult.ValidationFailed)]
-    [InlineData("user@example.com", "", CreateUserExpectedResult.ValidationFailed)]
-    [InlineData("duplicate@example.com", "John", CreateUserExpectedResult.AlreadyExists)]
-    [InlineData("user@example.com", "John", CreateUserExpectedResult.Success)]
-    public async Task Handle_VariousInputs_ReturnsExpectedOutcome(
-        string email,
-        string name,
-        CreateUserExpectedResult expected)
+    [InlineData("user@example.com", "John")]
+    [InlineData("alice@example.com", "Alice")]
+    public async Task Handle_ValidInput_ReturnsSuccess(string email, string name)
+    {
+        var sut = CreateUserHandlerBuilder.Default().Build();
+
+        var result = await sut.Handle(new CreateUserCommand(email, name), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+    }
+
+    [Theory]
+    [InlineData("",                 "John", "Error.Validation")]
+    [InlineData("user@example.com", "",     "Error.Validation")]
+    [InlineData("dup@example.com",  "John", "Error.Conflict")]
+    public async Task Handle_InvalidInput_ReturnsExpectedErrorCode(
+        string email, string name, string expectedErrorCode)
     {
         var sut = CreateUserHandlerBuilder.Default()
-            .WithExistingEmail("duplicate@example.com")
+            .WithExistingEmail("dup@example.com")
             .Build();
 
         var result = await sut.Handle(new CreateUserCommand(email, name), CancellationToken.None);
 
-        switch (expected)
-        {
-            case CreateUserExpectedResult.Success:
-                Assert.True(result.IsSuccess);
-                break;
-            case CreateUserExpectedResult.ValidationFailed:
-                Assert.Equal(ErrorKind.Validation, result.Error.Kind);
-                break;
-            case CreateUserExpectedResult.AlreadyExists:
-                Assert.Equal(ErrorKind.Conflict, result.Error.Kind);
-                break;
-            case CreateUserExpectedResult.ExternalUnavailable:
-                Assert.Equal(ErrorKind.External, result.Error.Kind);
-                break;
-            default:
-                throw new InvalidOperationException($"Unhandled case: {expected}");
-        }
+        Assert.Equal(expectedErrorCode, result.Error.Code);
+    }
+
+    [Theory]
+    [InlineData("bus-down@example.com", "John")]
+    public async Task Handle_WhenEventBusUnavailable_PublishesNothing(string email, string name)
+    {
+        var bus = new Mock<IEventBus>(MockBehavior.Strict);
+        bus.Setup(b => b.PublishAsync(It.IsAny<UserCreatedEvent>(), It.IsAny<CancellationToken>()))
+           .ThrowsAsync(new BrokerUnavailableException());
+        var sut = CreateUserHandlerBuilder.Default().WithBus(bus).Build();
+
+        var result = await sut.Handle(new CreateUserCommand(email, name), CancellationToken.None);
+
+        Assert.Equal("Error.External", result.Error.Code);
     }
 }
 ```
 
-## Форма B — скалярный ожидаемый результат
-Применять, когда SUT — детерминированное вычисление (форматирование, парсинг, расчёт). Никаких `switch` — одно сравнение.
+Зачем так:
+- Каждый метод читается как одно бизнес-правило.
+- Изменился контракт одной ветки — правится один метод; остальные не трогаются.
+- Никакого условного кода в Assert — баги в тесте невозможны.
+- Имя метода уже содержит ожидание (`ReturnsSuccess`, `ReturnsExpectedErrorCode`), пользователь видит покрытие в Test Explorer.
+
+## Форма 2 — Скаляр (детерминированное вычисление)
+Применять для расчётов, парсинга, форматирования. Один параметр `expected`, одна ассерт-строка.
 
 ```csharp
 public sealed class DiscountCalculatorTests
 {
     [Theory]
-    [InlineData(100, 0,  100)]
-    [InlineData(100, 10, 90)]
+    [InlineData(100, 0,   100)]
+    [InlineData(100, 10,  90)]
     [InlineData(100, 100, 0)]
-    [InlineData(200, 25, 150)]
+    [InlineData(200, 25,  150)]
     public void Calculate_VariousPercents_ReturnsExpectedAmount(
         decimal amount,
         decimal percent,
@@ -150,64 +162,90 @@ public sealed class DiscountCalculatorTests
 }
 ```
 
-## Форма C — комбинированная (категория + payload)
-Применять, когда нужно одновременно проверить категорию и конкретное значение (код ошибки, сумму, идентификатор).
+## Форма 3 — Кортеж/record (fallback, когда у всех кейсов одинаковая форма ожидания)
+Применять только если **все** строки `[InlineData]` проверяют одни и те же поля одной структуры (например, везде `(IsSuccess, ErrorCode)`). Сравнение — один `Assert.Equal` кортежей. Если форма у разных кейсов разная — это форма 1.
 
 ```csharp
-public enum CalculateOrderExpectedOutcome
-{
-    Success,
-    Rejected,
-}
-
 public sealed class CalculateOrderTotalTests
 {
     [Theory]
-    [InlineData(0,   CalculateOrderExpectedOutcome.Rejected, "EMPTY_CART")]
-    [InlineData(50,  CalculateOrderExpectedOutcome.Success,  "55.00")]
-    [InlineData(500, CalculateOrderExpectedOutcome.Success,  "550.00")]
-    public void Calculate_VariousCarts_ReturnsExpectedOutcomeAndPayload(
+    [InlineData(0,   false, "EMPTY_CART", 0)]
+    [InlineData(50,  true,  null,         55)]
+    [InlineData(500, true,  null,         550)]
+    public void Calculate_VariousCarts_ReturnsExpectedTotalAndStatus(
         decimal subtotal,
-        CalculateOrderExpectedOutcome expectedOutcome,
-        string expectedValue)
+        bool    expectedIsSuccess,
+        string? expectedErrorCode,
+        decimal expectedTotal)
     {
         var sut = new OrderTotalCalculator(taxRate: 0.10m);
 
         var result = sut.Calculate(subtotal);
 
-        switch (expectedOutcome)
-        {
-            case CalculateOrderExpectedOutcome.Success:
-                Assert.True(result.IsSuccess);
-                Assert.Equal(decimal.Parse(expectedValue, CultureInfo.InvariantCulture), result.Value);
-                break;
-            case CalculateOrderExpectedOutcome.Rejected:
-                Assert.False(result.IsSuccess);
-                Assert.Equal(expectedValue, result.Error.Code);
-                break;
-            default:
-                throw new InvalidOperationException($"Unhandled outcome: {expectedOutcome}");
-        }
+        Assert.Equal(
+            (expectedIsSuccess, expectedErrorCode, expectedTotal),
+            (result.IsSuccess,  result.Error?.Code, result.Value));
     }
 }
 ```
 
-## Когда `[MemberData]`
-Если хотя бы один параметр — не примитив (`record`, `List<T>`, `DateTime` со сложной семантикой, объект-строитель), писать `MemberData` через `TheoryData<...>`:
+Замечание: `null` в кортеже допустим как явное «поле не значимо в этом кейсе», если оно не значимо **во всех** кейсах одной структуры. Если для success-кейса осмысленно одно поле, а для failure — другое, переходить на форму 1.
+
+## Размещение тестовых данных
+Правило приоритета — данные должны быть **видны сразу над методом теста**:
+
+1. **`[InlineData]` — всегда первый выбор.** Все параметры теста перечислены атрибутами над методом, читаются как таблица: одна строка — один кейс.
+2. **Если в кейсе нужен сложный объект** (`record`, `command`, `dto`) — **разложить его на примитивные поля** и собрать объект **внутри** теста. Это сохраняет «вся data inline» и устраняет `MemberData` в 90% случаев.
+3. **`[MemberData]` — только когда CLR-ограничение не оставляет выбора**: коллекции (`List<T>`, массив сложных объектов), несколько сложных объектов в одной строке, неименуемые литералы (`DateTimeOffset` с TZ, `Guid`-литералы). В этом случае:
+   - провайдер — `public static TheoryData<...>` **в том же файле**, **в том же классе**;
+   - размещается **вплотную над методом теста** (между провайдером и `[Theory]` — только сам атрибут `[MemberData]`);
+   - один провайдер обслуживает **ровно один** тест-метод (нельзя переиспользовать на N тестов — теряется наглядность данных);
+   - имя провайдера = имя теста + `Cases`: `Handle_ValidCommand_ReturnsSuccess` → `Handle_ValidCommand_ReturnsSuccessCases`.
+
+### Способ 1 — декомпозиция (предпочтительно)
+Сложный `CreateUserCommand` разложен на поля; объект собирается в Arrange:
 
 ```csharp
-public static TheoryData<CreateUserCommand, CreateUserExpectedResult> Cases() => new()
+[Theory]
+[InlineData("user@example.com",  "John",  "RU")]
+[InlineData("alice@example.com", "Alice", "EN")]
+public async Task Handle_ValidInput_ReturnsSuccess(string email, string name, string locale)
 {
-    { new CreateUserCommand("", "John"),                 CreateUserExpectedResult.ValidationFailed },
-    { new CreateUserCommand("user@example.com", "John"), CreateUserExpectedResult.Success },
+    var sut = CreateUserHandlerBuilder.Default().Build();
+    var command = new CreateUserCommand(email, name, locale);
+
+    var result = await sut.Handle(command, CancellationToken.None);
+
+    Assert.True(result.IsSuccess);
+}
+```
+
+### Способ 2 — `MemberData` рядом с тестом (только когда декомпозиция невозможна)
+Например, нужно передать список тегов и `DateTimeOffset` с конкретным часовым поясом:
+
+```csharp
+public static TheoryData<List<string>, DateTimeOffset> Handle_ValidInput_AcceptsTagsAndScheduleCases() => new()
+{
+    { new List<string> { "vip", "trial" }, new DateTimeOffset(2026, 5, 17, 10, 0, 0, TimeSpan.FromHours(3)) },
+    { new List<string>(),                  new DateTimeOffset(2026, 5, 17, 23, 59, 0, TimeSpan.FromHours(3)) },
 };
 
 [Theory]
-[MemberData(nameof(Cases))]
-public async Task Handle_VariousCommands_ReturnsExpectedOutcome(
-    CreateUserCommand command,
-    CreateUserExpectedResult expected) { /* ... */ }
+[MemberData(nameof(Handle_ValidInput_AcceptsTagsAndScheduleCases))]
+public async Task Handle_ValidInput_AcceptsTagsAndSchedule(List<string> tags, DateTimeOffset scheduledAt)
+{
+    var sut = CreateUserHandlerBuilder.Default().Build();
+
+    var result = await sut.Handle(new CreateUserCommand(tags, scheduledAt), CancellationToken.None);
+
+    Assert.True(result.IsSuccess);
+}
 ```
+
+Зачем такие требования к `MemberData`:
+- Данные не теряются в утилитном классе / отдельном файле — читаются на одном экране с тестом.
+- Имя провайдера привязано к тесту → видно «откуда какие данные».
+- Запрещён общий провайдер на несколько тестов: разные тесты — разные данные по составу.
 
 # Изоляция недетерминизма
 В production-коде каждый источник недетерминизма обязан скрываться за интерфейсом-портом. В тестах порт мокается. Если порта нет — это блокер: сначала ввести порт в production, потом писать тест.
@@ -230,9 +268,10 @@ public async Task Handle_VariousCommands_ReturnsExpectedOutcome(
 | Триггер                                                              | Куда выносить                                                          |
 |----------------------------------------------------------------------|------------------------------------------------------------------------|
 | Нужно более **4 моков** в одном тесте                                | Разнести оркестрацию по нескольким handler / domain service            |
-| Более **6 параметров** в `[InlineData]`                              | Сгруппировать в Value Object / `record` и передавать через `MemberData`|
+| Более **6 параметров** в `[InlineData]`                              | Не уходить в `MemberData`. Сократить контракт SUT: выделить Value Object / отдельный handler / разнести Theory на несколько методов с меньшим набором осей варьирования |
 | В одном Act-вызове проверяется **более 1 ветви бизнес-логики**       | Выделить ветви в отдельные Specification / Strategy / методы           |
 | Один и тот же мок настраивается по-разному в **одном** тесте         | Признак ветвления в SUT по типу входа — разнести по разным методам     |
+| В Assert хочется написать `switch` / `if` / `?:` по `expected*`      | Разнести Theory на **N методов** по форме ожидания (форма 1) или свести expectedResult к одному кортежу (форма 3) |
 | В тесте нужны **приватные** методы SUT для проверки                  | Эти методы — отдельный класс с публичным контрактом                    |
 | Бизнес-логика обнаружена внутри `*Repository*`                       | Применить [.ai/skills/engineering/repository_layer_audit.md](.ai/skills/engineering/repository_layer_audit.md) и вынести в Application/Domain |
 | Тест требует знаний о порядке вызовов внутренних методов             | SUT нарушает инкапсуляцию — выделить наблюдаемое поведение (событие, состояние) |
@@ -254,8 +293,10 @@ public async Task Handle_VariousCommands_ReturnsExpectedOutcome(
 
 Примеры:
 - `Handle_WhenUserNotFound_ReturnsNotFound` — `[Fact]`, единичный сценарий.
-- `Handle_VariousEmails_ReturnsExpectedOutcome` — `[Theory]`, форма A.
-- `Calculate_VariousPercents_ReturnsExpectedAmount` — `[Theory]`, форма B.
+- `Handle_ValidInput_ReturnsSuccess` — `[Theory]`, форма 1 (один тип ожидания на метод).
+- `Handle_InvalidInput_ReturnsExpectedErrorCode` — `[Theory]`, форма 1.
+- `Calculate_VariousPercents_ReturnsExpectedAmount` — `[Theory]`, форма 2 (скаляр).
+- `Calculate_VariousCarts_ReturnsExpectedTotalAndStatus` — `[Theory]`, форма 3 (кортеж).
 - `Publish_OnSuccessfulSave_PublishesUserCreatedEvent` — `[Fact]`, проверка наблюдаемого события.
 - `Constructor_WithNullRepository_ThrowsArgumentNullException` — `[Fact]`, инвариант конструктора.
 
@@ -311,7 +352,10 @@ public sealed class CreateUserCommandHandlerTests
 - [ ] Стек — только xUnit + Moq. Нет NUnit (`[Test]`, `[TestCase]`, `Assert.That`) и MSTest.
 - [ ] В тесте нет реальной БД, Docker, Testcontainers, реальных HTTP/RabbitMQ/MinIO/Redis.
 - [ ] В SUT и в тесте нет прямых обращений к `DateTime.UtcNow`, `Guid.NewGuid`, `Environment.*`, `File.*`, `Random`, `CultureInfo.Current*` — всё через порты.
-- [ ] Параметризованные сценарии — `[Theory]` с `expectedResult` в одной из форм A/B/C; форма обоснована природой результата.
+- [ ] Параметризованные сценарии — `[Theory]` с `expectedResult` в одной из форм 1/2/3; форма обоснована природой результата.
+- [ ] В Assert-блоке **нет** `switch`, `if`, `?:`. Каждый тест заканчивается одной декларативной инструкцией эквивалентности.
+- [ ] Если у сценариев разная форма ожидания — это разные Theory-методы (форма 1), а не один Theory с веткой.
+- [ ] Тестовые данные — `[InlineData]` (видно сразу над методом). `[MemberData]` использован только когда CLR не оставляет выбора; провайдер расположен вплотную над методом и обслуживает ровно один тест.
 - [ ] Один тест проверяет одно наблюдаемое поведение.
 - [ ] Имена тестов соответствуют формату `MethodOrFeature_StateUnderTest_ExpectedBehavior`.
 - [ ] Файл с тестом зеркалит путь production-класса, 1 файл = 1 SUT, имя класса — `<SUT>Tests`.
@@ -320,9 +364,13 @@ public sealed class CreateUserCommandHandlerTests
 - [ ] Тест устойчив к рефакторингу реализации SUT: правка внутреннего кода без смены контракта не ломает тест.
 
 # Анти-паттерны
+- ❌ **`switch` / `if` / `?:` в Assert-блоке** по `expected*`-параметру. Тест с условной логикой — это второй непроверенный код; правильный приём — разнести Theory на N методов (форма 1) либо свести ожидание к кортежу (форма 3).
+- ❌ Один Theory, в котором success-кейс проверяет одни поля, а failure — другие. Это разные Theory-методы.
+- ❌ Enum-тип `<Feature>ExpectedResult { Success, ValidationFailed, ... }` как параметр Theory с раскруткой через `switch` в Assert.
 - ❌ `[Fact]` с копипастой одного теста на 5+ наборов данных вместо `[Theory]`.
-- ❌ `[InlineData]` со сложными объектами (`record` с коллекциями, `JObject` и т. п.) — должно быть `[MemberData]`.
-- ❌ Скаляр-результат, проверяемый через `switch` по фиктивному enum (форма B решается одной строкой `Assert.Equal`).
+- ❌ `[MemberData]`-провайдер, оторванный от теста: общий на несколько методов, в `TestDataFixtures.cs`, в base-классе, в `partial class`-другом файле. Данные должны быть видны на одном экране с тестом.
+- ❌ Уход в `[MemberData]` ради «компактности», когда сложный объект можно разложить на примитивные поля `[InlineData]` и собрать внутри теста.
+- ❌ `[InlineData]` со сложными объектами (`record`, `List<T>`, `JObject`) — это CLR-ограничение, не «эстетика».
 - ❌ Прямые вызовы `DateTime.UtcNow`, `Guid.NewGuid()`, `Environment.GetEnvironmentVariable`, `File.*` в SUT.
 - ❌ Реальный SQL, Testcontainers, Docker в unit-проекте.
 - ❌ `Verify(..., Times.Once)` на приватные/служебные вызовы (логирование, внутренние методы).
