@@ -1,0 +1,16 @@
+---
+description: Security baseline — always applied
+alwaysApply: true
+---
+
+Security non-negotiables for any change:
+
+- Never commit secrets. `.env` gitignored; `.env.example` committed with placeholders.
+- All endpoints `[Authorize]` by default; `[AllowAnonymous]` only explicit.
+- User identity from validated JWT claims, never from request body.
+- Resource ownership checked on every mutation.
+- Parameterized queries only. No string concatenation with user input.
+- Frontend: tokens in memory + httpOnly refresh cookie. Never `localStorage`/`sessionStorage`.
+- No `any` type in TypeScript. Use `unknown` and narrow.
+
+Full detail: `.ai-kit/ai/conventions/security.md`.

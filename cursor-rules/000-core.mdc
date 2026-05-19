@@ -1,0 +1,24 @@
+---
+description: s3lab AI-kit core rules and project context — always applied
+alwaysApply: true
+---
+
+This project uses s3lab-ai-kit standards. Full kit lives in `.ai-kit/` (git submodule).
+
+Source of truth (read on demand):
+- `.ai-kit/ai/core.md` — imports all conventions
+- `.ai-kit/ai/conventions/` — per-technology rules
+- `.ai-kit/ai/agents/` — specialized persona prompts
+- `.ai-kit/ai/commands/` — full pipelines (feature, bugfix, ...)
+- `.ai/project-context.md` — this project's specifics
+
+@.ai-kit/ai/stack.md
+@.ai-kit/ai/workflow.md
+@.ai/project-context.md
+
+## Hard rules
+
+- Never commit secrets. Use `.env` (gitignored) and `.env.example` (committed).
+- Never edit generated code: OpenAPI clients, applied EF migrations, protobuf stubs.
+- Backend changes API → update OpenAPI → regenerate frontend client. No hand-rolled HTTP calls.
+- Plan before code on non-trivial work. Read `.ai-kit/ai/agents/orchestrator.md` first.

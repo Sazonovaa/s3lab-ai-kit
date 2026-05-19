@@ -1,0 +1,12 @@
+---
+description: Angular conventions for s3lab projects
+globs:
+  - "frontend/**/*.ts"
+  - "frontend/**/*.html"
+  - "frontend/**/*.scss"
+  - "frontend/**/*.css"
+alwaysApply: false
+---
+
+@.ai-kit/ai/conventions/angular.md
+@.ai-kit/ai/conventions/identity-auth.md

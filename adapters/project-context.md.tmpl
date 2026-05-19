@@ -1,0 +1,41 @@
+# Project-specific context
+
+This file is read by all AI assistants. Keep it short, factual, and high-signal.
+
+## What this project does
+
+<one paragraph: what's the product, who are the users, what problem does it solve>
+
+## Services in this repo
+
+- `backend/services/<name>/` — <purpose>
+- `frontend/` — Angular SPA
+
+## Local development
+
+```bash
+docker compose up -d                                # bring up dependencies
+cd backend/services/<name> && dotnet run --project src/<Name>.Api
+cd frontend && npm install && npm start
+```
+
+Default ports:
+- Backend API: <port>
+- Frontend dev server: 4200
+- PostgreSQL: 5432
+- RabbitMQ: 5672 (management UI: 15672)
+- Identity: <port>
+
+## Project-specific deviations from kit standards
+
+<list anything where this project intentionally differs from kit defaults; if none, write "None">
+
+## Important — what AI must NOT do
+
+<list anything specific to this project that AI agents must avoid; if nothing, write "Follow kit standards strictly">
+
+## Useful commands
+
+```
+# add project-specific commands you find yourself running often
+```

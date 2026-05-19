@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+#
+# sync-ai-kit
+#
+# Installs / refreshes s3lab-ai-kit in the current project.
+# Idempotent: safe to run multiple times. Run after every `git submodule update --remote .ai-kit`.
+#
+# Usage: from project root, run:
+#   .ai-kit/bin/sync-ai-kit
+#
+
+set -euo pipefail
+
+# Resolve paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+KIT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Sanity: kit must be a submodule called .ai-kit at the project root
+if [ "$KIT_DIR" != "$PROJECT_ROOT/.ai-kit" ]; then
+    echo "ERROR: s3lab-ai-kit must be at .ai-kit in the project root."
+    echo "  Expected: $PROJECT_ROOT/.ai-kit"
+    echo "  Got:      $KIT_DIR"
+    exit 1
+fi
+
+cd "$PROJECT_ROOT"
+
+# Source helpers
+# shellcheck disable=SC1091
+. "$KIT_DIR/bin/lib/symlinks.sh"
+
+VERSION=$(cat "$KIT_DIR/VERSION")
+PROJECT_NAME=$(basename "$PROJECT_ROOT")
+
+echo ""
+echo "→ Syncing s3lab-ai-kit v$VERSION into $PROJECT_NAME"
+echo ""
+
+# 1. CLAUDE.md — adapter stub (only created if missing)
+echo "→ Claude Code adapter"
+render_template "$KIT_DIR/adapters/CLAUDE.md.tmpl" "CLAUDE.md" "PROJECT_NAME=$PROJECT_NAME"
+
+if [ -f CLAUDE.md ] && ! grep -q '@\.ai-kit/ai/core\.md' CLAUDE.md; then
+    echo "  ! WARN: CLAUDE.md exists but does not import .ai-kit/ai/core.md"
+    echo "         Add this line near the top:  @.ai-kit/ai/core.md"
+fi
+
+# 2. AGENTS.md — adapter stub for Codex / Cursor's plain markdown fallback
+echo ""
+echo "→ Codex / AGENTS.md adapter"
+render_template "$KIT_DIR/adapters/AGENTS.md.tmpl" "AGENTS.md" "PROJECT_NAME=$PROJECT_NAME"
+
+# 3. .ai/ — project-specific context and overrides
+echo ""
+echo "→ Project-specific .ai/"
+mkdir -p .ai/overrides
+copy_if_missing "$KIT_DIR/adapters/project-context.md.tmpl" ".ai/project-context.md"
+
+# 4. Claude Code agents and commands — symlinks
+echo ""
+echo "→ Claude Code agents and commands (symlinks)"
+safe_symlink "../../.ai-kit/ai/agents" ".claude/agents"
+safe_symlink "../../.ai-kit/ai/commands" ".claude/commands"
+copy_if_missing "$KIT_DIR/adapters/claude-settings.json.tmpl" ".claude/settings.json"
+
+# 5. Cursor rules — symlink the whole directory
+echo ""
+echo "→ Cursor rules (symlink)"
+safe_symlink "../.ai-kit/cursor-rules" ".cursor/rules"
+
+# 6. One-time templates (only on first install — never overwritten on re-sync)
+echo ""
+echo "→ One-time templates"
+copy_if_missing "$KIT_DIR/templates/editorconfig" ".editorconfig"
+copy_if_missing "$KIT_DIR/templates/docs/architecture.md.tmpl" "docs/architecture.md"
+copy_if_missing "$KIT_DIR/templates/docs/adr/README.md" "docs/adr/README.md"
+copy_if_missing "$KIT_DIR/templates/docs/adr/0000-template.md" "docs/adr/0000-template.md"
+
+mkdir -p .github/ISSUE_TEMPLATE .github/workflows
+for f in "$KIT_DIR"/templates/github/ISSUE_TEMPLATE/*.md; do
+    copy_if_missing "$f" ".github/ISSUE_TEMPLATE/$(basename "$f")"
+done
+copy_if_missing "$KIT_DIR/templates/github/PULL_REQUEST_TEMPLATE.md" ".github/PULL_REQUEST_TEMPLATE.md"
+
+# Workflows are one-time copies (project will likely customize them)
+for f in "$KIT_DIR"/templates/github/workflows/*.yml; do
+    copy_if_missing "$f" ".github/workflows/$(basename "$f")"
+done
+
+# 7. Append gitignore lines if missing (idempotent)
+echo ""
+echo "→ .gitignore additions"
+if [ ! -f .gitignore ]; then
+    touch .gitignore
+fi
+while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    case "$line" in \#*) continue ;; esac
+    if ! grep -qxF "$line" .gitignore; then
+        echo "$line" >> .gitignore
+        echo "  + .gitignore: $line"
+    fi
+done < "$KIT_DIR/templates/gitignore-additions"
+
+echo ""
+echo "✓ Sync complete (kit v$VERSION)"
+echo ""
+echo "Symlinks to submodule (auto-update with: git submodule update --remote .ai-kit):"
+echo "  .claude/agents/    → .ai-kit/ai/agents/"
+echo "  .claude/commands/  → .ai-kit/ai/commands/"
+echo "  .cursor/rules/     → .ai-kit/cursor-rules/"
+echo ""
+echo "Edit these for project specifics:"
+echo "  .ai/project-context.md     — what this project does, its services, deviations"
+echo "  .ai/overrides/<name>.md    — override a specific kit agent or convention"
+echo ""
+echo "Next steps:"
+echo "  1. Edit .ai/project-context.md"
+echo "  2. git add -A && git commit -m 'chore: install s3lab-ai-kit v$VERSION'"
+echo "  3. In Claude Code: run /memory to verify rules are loaded"
+echo "  4. Try /feature on a small task"
