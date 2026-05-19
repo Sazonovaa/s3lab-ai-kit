@@ -1,15 +1,22 @@
-* text=auto eol=crlf
+# Force LF line endings for shell scripts and config files across all platforms.
+# Without this, git on Windows / files uploaded via GitHub web UI may end up with
+# CRLF, which breaks shebangs (#!/usr/bin/env bash\r → "bash\r: No such file").
 
-*.sh text eol=lf
+*.sh    text eol=lf
+*.bash  text eol=lf
 
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.webp binary
-*.ico binary
-*.pdf binary
-*.zip binary
-*.7z binary
-*.dll binary
-*.exe binary
+# Files in bin/ are bash scripts without extensions
+bin/sync-ai-kit  text eol=lf
+bin/new-project  text eol=lf
+
+# Markdown, YAML, JSON — keep LF for cross-platform consistency
+*.md    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+
+# Templates that are LF-sensitive (used as shell here-docs and similar)
+*.tmpl  text eol=lf
+
+# Default for any other text files
+* text=auto

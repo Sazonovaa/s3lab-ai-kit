@@ -5,6 +5,26 @@
 
 ## [Unreleased]
 
+## [0.2.1] — CRLF protection
+
+### Added
+- `.gitattributes` enforcing LF line endings for shell scripts (`*.sh`, `bin/sync-ai-kit`,
+  `bin/new-project`), markdown, YAML, JSON, and `*.tmpl` files.
+
+### Why
+- When kit was first uploaded via GitHub web UI / on certain Windows/macOS setups with
+  `core.autocrlf=true`, shell scripts got CRLF line terminators. This breaks shebang
+  lines: `#!/usr/bin/env bash` becomes `#!/usr/bin/env bash\r`, and the OS tries to
+  run a non-existent interpreter named `bash\r`, producing:
+  `env: bash\r: No such file or directory`.
+- With `.gitattributes` enforcing `eol=lf`, git normalises line endings on commit/checkout
+  regardless of platform.
+
+### Migration for existing projects
+- Update kit in projects: `git submodule update --remote .ai-kit`
+- If submodule shows files modified after pull (`bin/sync-ai-kit`, etc.), run inside the
+  submodule: `git checkout .` to apply the LF normalisation.
+
 ## [0.2.0] — monorepo guidance
 
 ### Added
