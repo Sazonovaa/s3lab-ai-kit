@@ -1,6 +1,6 @@
-# tiss.ai.kit.standart
+# s3lab-ai-kit
 
-`tiss.ai.kit.standart` — стандартный набор AI-инструкций, политик, skills, subagents, hooks и вспомогательных скриптов для проектов TISS.
+`s3lab-ai-kit` — стандартный набор AI-инструкций, политик, skills, subagents, hooks и вспомогательных скриптов для проектов TISS.
 
 Репозиторий нужен, чтобы все AI-инструменты команды работали по одним правилам: одинаково выбирали маршрут задачи, соблюдали security policy, выполняли обязательный review flow и не зависели от устных договорённостей.
 
@@ -15,10 +15,10 @@
 
 ## Как подключить к проекту
 
-В прикладном проекте подключите этот репозиторий как submodule. `tiss.ai.kit.standart` остаётся центральным источником правды, а в корне прикладного проекта лежат только тонкие входные файлы для AI-клиентов.
+В прикладном проекте подключите этот репозиторий как submodule. `s3lab-ai-kit` остаётся центральным источником правды, а в корне прикладного проекта лежат только тонкие входные файлы для AI-клиентов.
 
 ```cmd
-git submodule add http://git-web.tiss.ru/tiss-ai-kit/tiss.ai.kit.standart.git tiss.ai.kit.standart
+git submodule add http://git-web.tiss.ru/tiss-ai-kit/s3lab-ai-kit.git s3lab-ai-kit
 git submodule update --init --recursive
 ```
 
@@ -26,26 +26,26 @@ git submodule update --init --recursive
 
 ```cmd
 git submodule update --init --recursive
-.\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd
+.\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd
 ```
 
 Скрипт делает два действия:
 
-1. Обновляет submodule `tiss.ai.kit.standart`.
+1. Обновляет submodule `s3lab-ai-kit`.
 2. Создаёт или перезаписывает в корне прикладного проекта `CURSOR.md`, `CLAUDE.md`, `CODEX.md`.
 
 Эти три файла не дублируют правила. Они говорят Cursor, Claude Code и Codex CLI читать соответствующие входные файлы из submodule:
 
-- `tiss.ai.kit.standart/CURSOR.md`
-- `tiss.ai.kit.standart/CLAUDE.md`
-- `tiss.ai.kit.standart/CODEX.md`
+- `s3lab-ai-kit/CURSOR.md`
+- `s3lab-ai-kit/CLAUDE.md`
+- `s3lab-ai-kit/CODEX.md`
 
-После перехода в эти файлы все относительные пути AI Kit (`AGENTS.md`, `.ai/router.md`, `.ai/skills/**`, `.ai/subagents/**`, vendor-specific папки) разрешаются относительно `tiss.ai.kit.standart/`.
+После перехода в эти файлы все относительные пути AI Kit (`AGENTS.md`, `.ai/router.md`, `.ai/skills/**`, `.ai/subagents/**`, vendor-specific папки) разрешаются относительно `s3lab-ai-kit/`.
 
 Проверить действия без записи файлов можно так:
 
 ```cmd
-.\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd --dry-run
+.\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd --dry-run
 ```
 
 Проверка после синхронизации:
@@ -56,11 +56,11 @@ git submodule status
 dir CURSOR.md CLAUDE.md CODEX.md
 ```
 
-В MR прикладного проекта должны попасть `.gitmodules`, запись submodule и созданные корневые entry-point файлы, если проект хранит их в git. Содержимое `tiss.ai.kit.standart` не нужно коммитить как обычную папку.
+В MR прикладного проекта должны попасть `.gitmodules`, запись submodule и созданные корневые entry-point файлы, если проект хранит их в git. Содержимое `s3lab-ai-kit` не нужно коммитить как обычную папку.
 
 ## Базовый порядок работы агента
 
-1. Определить AI Kit base directory: текущий репозиторий `tiss.ai.kit.standart/` или submodule `tiss.ai.kit.standart/` в прикладном проекте.
+1. Определить AI Kit base directory: текущий репозиторий `s3lab-ai-kit/` или submodule `s3lab-ai-kit/` в прикладном проекте.
 2. Прочитать `AGENTS.md` из AI Kit base directory.
 3. Прочитать `.ai/router.md` из AI Kit base directory.
 4. Выбрать ровно один route: `skill` из `.ai/skills/**`, policy из `.ai/policies/**` или `subagent` из `.ai/subagents/**`.

@@ -11,16 +11,16 @@
 
 ## Использование в стороннем проекте
 
-Сторонний проект подключает `tiss.ai.kit.standart` как Git submodule и запускает синхронизацию из своего корня:
+Сторонний проект подключает `s3lab-ai-kit` как Git submodule и запускает синхронизацию из своего корня:
 
 ```cmd
-.\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd
+.\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd
 ```
 
-Скрипт обновляет submodule и создаёт в корне стороннего проекта `CURSOR.md`, `CLAUDE.md`, `CODEX.md`. Эти файлы являются entry-point файлами: они не копируют правила, а указывают AI-клиентам читать правила, skills, subagents, hooks и routing из `tiss.ai.kit.standart`.
+Скрипт обновляет submodule и создаёт в корне стороннего проекта `CURSOR.md`, `CLAUDE.md`, `CODEX.md`. Эти файлы являются entry-point файлами: они не копируют правила, а указывают AI-клиентам читать правила, skills, subagents, hooks и routing из `s3lab-ai-kit`.
 
 Для проверки без записи файлов:
 
 ```cmd
-.\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd --dry-run
+.\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd --dry-run
 ```

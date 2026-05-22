@@ -46,10 +46,10 @@ triggers:
 - После изменения `.cs` учитывать правила formatting, sorting и CRLF из `docs/review/CODE_REVIEW.md`.
 - **Не редактировать сгенерированные файлы** (`.claude/agents/**`, `.claude/skills/**`, `.cursor/skills/**`, `.ai/routes.generated.md`, блок `AIKIT:ROUTES` в `.ai/router.md`) — менять источник в `.ai/` и пересобирать (см. раздел ниже).
 
-# Подключение submodule `tiss.ai.kit.standart`
+# Подключение submodule `s3lab-ai-kit`
 - В прикладном проекте подключить центральный AI Kit как submodule:
   ```cmd
-  git submodule add http://git-web.tiss.ru/tiss-ai-kit/tiss.ai.kit.standart.git tiss.ai.kit.standart
+  git submodule add http://git-web.tiss.ru/tiss-ai-kit/s3lab-ai-kit.git s3lab-ai-kit
   ```
 - Инициализировать и подтянуть содержимое submodule:
   ```cmd
@@ -61,21 +61,21 @@ triggers:
   ```
 - Из корня прикладного проекта запустить синхронизацию AI Kit:
   ```cmd
-  .\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd
+  .\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd
   ```
 - Если нужно посмотреть действия без записи файлов, использовать dry-run:
   ```cmd
-  .\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd --dry-run
+  .\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd --dry-run
   ```
-- После синхронизации в корне прикладного проекта появляются `CURSOR.md`, `CLAUDE.md`, `CODEX.md` (entry-файлы, направляют AI-клиенты к канону в `tiss.ai.kit.standart`), сгенерированные нативные артефакты `.claude/agents/**`, `.claude/skills/**`, `.cursor/skills/**`, а также vendor-конфиги хуков `.claude/settings.json`, `.cursor/hooks.json`, `.codex/hooks.json`, `.codex/config.toml` (для этого нужен **Node.js 18+** в PATH).
-- Vendor-конфиги создаются **только если отсутствуют** — свои настройки не затираются. Пути скриптов в них переписаны под submodule (`tiss.ai.kit.standart/scripts/...`). Если конфиг уже есть и нужны хуки kit — сверь его с шаблоном внутри submodule.
+- После синхронизации в корне прикладного проекта появляются `CURSOR.md`, `CLAUDE.md`, `CODEX.md` (entry-файлы, направляют AI-клиенты к канону в `s3lab-ai-kit`), сгенерированные нативные артефакты `.claude/agents/**`, `.claude/skills/**`, `.cursor/skills/**`, а также vendor-конфиги хуков `.claude/settings.json`, `.cursor/hooks.json`, `.codex/hooks.json`, `.codex/config.toml` (для этого нужен **Node.js 18+** в PATH).
+- Vendor-конфиги создаются **только если отсутствуют** — свои настройки не затираются. Пути скриптов в них переписаны под submodule (`s3lab-ai-kit/scripts/...`). Если конфиг уже есть и нужны хуки kit — сверь его с шаблоном внутри submodule.
 - Проверить результат:
   ```cmd
   git status
   git submodule status
   dir CURSOR.md CLAUDE.md CODEX.md
   ```
-- В MR родительского проекта должны попасть `.gitmodules`, запись submodule и корневые entry-point файлы, если проект хранит их в git. Не коммитить содержимое `tiss.ai.kit.standart` как обычную папку.
+- В MR родительского проекта должны попасть `.gitmodules`, запись submodule и корневые entry-point файлы, если проект хранит их в git. Не коммитить содержимое `s3lab-ai-kit` как обычную папку.
 
 # Единое описание AI-kit и нативная генерация
 - **Источник правды** — frontmatter файлов `.ai/skills/**` и `.ai/subagents/**` (`name`, `description`, `triggers`, опционально `model`, `tools`).

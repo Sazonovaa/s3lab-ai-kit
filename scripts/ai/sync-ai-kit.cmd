@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableExtensions
 
-set "SUBMODULE_NAME=tiss.ai.kit.standart"
+set "SUBMODULE_NAME=s3lab-ai-kit"
 set "DRY_RUN="
 
 if /i "%~1"=="--dry-run" set "DRY_RUN=1"

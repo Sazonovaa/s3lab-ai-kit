@@ -40,7 +40,7 @@ if (outIdx !== -1) {
   if (val) OUT_ROOT = path.resolve(val);
 }
 const EXTERNAL = path.resolve(OUT_ROOT) !== path.resolve(KIT_ROOT);
-// Префикс пути источника при внешней сборке (например "tiss.ai.kit.standart/").
+// Префикс пути источника при внешней сборке (например "s3lab-ai-kit/").
 const KIT_REL = EXTERNAL ? path.relative(OUT_ROOT, KIT_ROOT).replace(/\\/g, '/') + '/' : '';
 
 const EOL = '\r\n'; // .gitattributes: * text=auto eol=crlf
@@ -505,7 +505,7 @@ async function writeAll(files, entries) {
 }
 
 // Переносит конфиги хуков/MCP из kit в корень потребителя, переписывая пути
-// скриптов под submodule (например scripts/ai/ -> tiss.ai.kit.standart/scripts/ai/).
+// скриптов под submodule (например scripts/ai/ -> s3lab-ai-kit/scripts/ai/).
 // Не затирает существующие файлы (consumer может иметь свои настройки).
 async function projectVendorConfigs() {
   let created = 0;

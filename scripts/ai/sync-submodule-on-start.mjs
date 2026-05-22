@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // Кросс-платформенный порт sync-submodule-on-start.cmd.
-// При старте сессии делает ff-only pull submodule `tiss.ai.kit.standart`, если
+// При старте сессии делает ff-only pull submodule `s3lab-ai-kit`, если
 // он отстал от upstream и не разошёлся. В самом kit-репо (submodule отсутствует)
 // — no-op. Всегда печатает `{}` в stdout и завершает 0 (не блокирует сессию).
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-const SUBMODULE_NAME = 'tiss.ai.kit.standart';
+const SUBMODULE_NAME = 's3lab-ai-kit';
 const done = (msg) => { if (msg) process.stderr.write(`sync-submodule-on-start: ${msg}\n`); process.stdout.write('{}\n'); process.exit(0); };
 const git = (args, cwd) => {
   const r = spawnSync('git', args, { cwd, encoding: 'utf8' });

@@ -116,9 +116,9 @@ node scripts/ai/<script>.mjs [args]
 ```text
 sessionStart
   └── node scripts/ai/sync-submodule-on-start.mjs
-        ├── git -C tiss.ai.kit.standart fetch
+        ├── git -C s3lab-ai-kit fetch
         ├── проверка fast-forward
-        └── git -C tiss.ai.kit.standart pull --ff-only
+        └── git -C s3lab-ai-kit pull --ff-only
 ```
 
 При конфликте submodule или diverged history — скрипт логирует причину и выходит без изменений.

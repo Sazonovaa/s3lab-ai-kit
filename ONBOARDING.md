@@ -10,8 +10,8 @@
 
 ## Быстрый старт (работа над самим kit)
 ```cmd
-git clone http://git-web.tiss.ru/tiss-ai-kit/tiss.ai.kit.standart.git
-cd tiss.ai.kit.standart
+git clone http://git-web.tiss.ru/tiss-ai-kit/s3lab-ai-kit.git
+cd s3lab-ai-kit
 
 :: поставить git pre-commit (CRLF + drift-гейт). Windows:
 scripts\hooks\install-git-hooks.cmd
@@ -44,14 +44,14 @@ node scripts\ai\build-ai-kit.mjs --check  :: проверить дрейф (ка
 
 ## Использование как submodule в прикладном проекте
 ```cmd
-git submodule add http://git-web.tiss.ru/tiss-ai-kit/tiss.ai.kit.standart.git tiss.ai.kit.standart
+git submodule add http://git-web.tiss.ru/tiss-ai-kit/s3lab-ai-kit.git s3lab-ai-kit
 git submodule update --init --recursive
 
 :: синхронизация: обновляет submodule, создаёт CURSOR/CLAUDE/CODEX.md и
 :: генерирует нативные .claude/.cursor артефакты в корне проекта
-.\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd
+.\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd
 ```
-В git родительского проекта попадают `.gitmodules`, запись submodule и корневые entry-файлы. Содержимое `tiss.ai.kit.standart` не коммитить как обычную папку.
+В git родительского проекта попадают `.gitmodules`, запись submodule и корневые entry-файлы. Содержимое `s3lab-ai-kit` не коммитить как обычную папку.
 
 ## Карта репозитория
 | Путь | Что это |

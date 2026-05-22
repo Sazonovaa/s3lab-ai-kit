@@ -321,7 +321,7 @@ flowchart LR
 
 Принцип: **один канонический текст** в `.ai/`; вендоры получают тонкие «входные» файлы, которые не дублируют логику, а указывают на протокол.
 
-Для сторонних проектов актуальный режим подключения: `tiss.ai.kit.standart` добавляется как Git submodule, затем из корня стороннего проекта запускается `.\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd`. Скрипт обновляет submodule и создаёт в корне проекта `CURSOR.md`, `CLAUDE.md`, `CODEX.md`, которые перенаправляют AI-клиенты к канону внутри submodule.
+Для сторонних проектов актуальный режим подключения: `s3lab-ai-kit` добавляется как Git submodule, затем из корня стороннего проекта запускается `.\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd`. Скрипт обновляет submodule и создаёт в корне проекта `CURSOR.md`, `CLAUDE.md`, `CODEX.md`, которые перенаправляют AI-клиенты к канону внутри submodule.
 
 **Порядок секций ниже совпадает с колонками на схеме «практичный минимум»** (слева направо): опциональные входы → общее для всех → только Cursor → только Claude Code → только Codex → альтернатива входа Codex. На диске папки могут сосуществовать в любом порядке; **логическая группировка** — как на диаграмме.
 
@@ -400,7 +400,7 @@ repo-root/
 
 Многие пункты исходного блока Deliverable уже в git: [.ai/catalog.md](../../.ai/catalog.md), [.ai/multi_vendor_tool_matrix.md](../../.ai/multi_vendor_tool_matrix.md), [.ai/policies/security_sdlc.md](../../.ai/policies/security_sdlc.md), [.github/pull_request_template.md](../../.github/pull_request_template.md), [.cursor/hooks.json](../../.cursor/hooks.json), корневые [CURSOR.md](../../CURSOR.md), [CLAUDE.md](../../CLAUDE.md), [CODEX.md](../../CODEX.md).
 
-Для прикладных репозиториев эти артефакты не копируются вручную. Проект хранит submodule `tiss.ai.kit.standart`, а корневые `CURSOR.md`, `CLAUDE.md`, `CODEX.md` создаются командой `.\tiss.ai.kit.standart\scripts\ai\sync-ai-kit.cmd` и указывают на canonical файлы внутри submodule.
+Для прикладных репозиториев эти артефакты не копируются вручную. Проект хранит submodule `s3lab-ai-kit`, а корневые `CURSOR.md`, `CLAUDE.md`, `CODEX.md` создаются командой `.\s3lab-ai-kit\scripts\ai\sync-ai-kit.cmd` и указывают на canonical файлы внутри submodule.
 
 ### Исходный чеклист Deliverable (архив)
 
