@@ -1,0 +1,9 @@
+{
+  "name": "s3lab-testing",
+  "version": "0.1.0",
+  "description": "Testing skills and agents for web/e2e/UI and unit-test guidance.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  }
+}

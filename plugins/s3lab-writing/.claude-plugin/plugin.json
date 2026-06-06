@@ -1,0 +1,9 @@
+{
+  "name": "s3lab-writing",
+  "version": "0.1.0",
+  "description": "Writing skills: structure and tone for technical articles (Habr/VC).",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  }
+}

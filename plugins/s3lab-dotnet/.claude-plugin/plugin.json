@@ -1,0 +1,9 @@
+{
+  "name": "s3lab-dotnet",
+  "version": "0.1.0",
+  "description": ".NET 10 backend skills and agents (Clean Architecture, CQRS, infrastructure).",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  }
+}
