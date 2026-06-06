@@ -1,0 +1,9 @@
+{
+  "name": "s3lab-policy",
+  "version": "0.1.0",
+  "description": "Обязательный baseline: secrets-guard на git pre-commit/pre-push, общие правила для всех s3lab-проектов.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  }
+}
