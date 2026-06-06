@@ -4,6 +4,26 @@
 
 Репозиторий нужен, чтобы все AI-инструменты команды работали по одним правилам: одинаково выбирали маршрут задачи, соблюдали security policy, выполняли обязательный review flow и не зависели от устных договорённостей.
 
+## Marketplace (Claude Code)
+
+Репозиторий содержит Claude Code plugin marketplace в `.claude-plugin/marketplace.json`. Плагины разложены по доменам в `plugins/<имя>/`. На текущий момент полностью оформлен только демо-плагин `s3lab-engineering` (заглушка skill + slash-команда), остальные плагины — пустые скелеты.
+
+Установка локально:
+
+```text
+/plugin marketplace add /Users/saa/Projects/s3lab/s3lab-ai-kit
+/plugin install s3lab-engineering@s3lab
+```
+
+Доступные плагины:
+
+- `s3lab-engineering` — Engineering skills, agents, commands and hooks for s3lab team workflows.
+- `s3lab-dotnet` — .NET 10 backend skills and agents (Clean Architecture, CQRS, infrastructure). *skeleton*
+- `s3lab-product` — Product skills: PRD/MVP preparation, sprint acceptance criteria. *skeleton*
+- `s3lab-testing` — Testing skills and agents for web/e2e/UI and unit-test guidance. *skeleton*
+- `s3lab-research` — Research skills: competitors, technologies, market analysis. *skeleton*
+- `s3lab-writing` — Writing skills: structure and tone for technical articles (Habr/VC). *skeleton*
+
 ## Для чего введён AI Kit
 
 - Единый вход для AI-агентов через `AGENTS.md` и `.ai/router.md`.
