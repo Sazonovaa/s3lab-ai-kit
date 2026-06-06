@@ -1,0 +1,9 @@
+{
+  "name": "s3lab-engineering",
+  "version": "0.1.0",
+  "description": "Engineering skills, agents, commands and hooks for s3lab team workflows.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  }
+}
