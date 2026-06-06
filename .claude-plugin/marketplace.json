@@ -1,0 +1,39 @@
+{
+  "name": "s3lab",
+  "owner": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "s3lab-engineering",
+      "source": "./plugins/s3lab-engineering",
+      "description": "Engineering skills, agents, commands and hooks for s3lab team workflows."
+    },
+    {
+      "name": "s3lab-dotnet",
+      "source": "./plugins/s3lab-dotnet",
+      "description": ".NET 10 backend skills and agents (Clean Architecture, CQRS, infrastructure)."
+    },
+    {
+      "name": "s3lab-product",
+      "source": "./plugins/s3lab-product",
+      "description": "Product skills: PRD/MVP preparation, sprint acceptance criteria."
+    },
+    {
+      "name": "s3lab-testing",
+      "source": "./plugins/s3lab-testing",
+      "description": "Testing skills and agents for web/e2e/UI and unit-test guidance."
+    },
+    {
+      "name": "s3lab-research",
+      "source": "./plugins/s3lab-research",
+      "description": "Research skills: competitors, technologies, market analysis."
+    },
+    {
+      "name": "s3lab-writing",
+      "source": "./plugins/s3lab-writing",
+      "description": "Writing skills: structure and tone for technical articles (Habr/VC)."
+    }
+  ]
+}
