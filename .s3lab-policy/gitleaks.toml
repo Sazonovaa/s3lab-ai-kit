@@ -1,0 +1,8 @@
+# s3lab-policy v0.1.0
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Per-repo overrides — add paths or regexes here to silence false positives. Commit this file so the team agrees on what is allowlisted."
+paths = []
+regexes = []
