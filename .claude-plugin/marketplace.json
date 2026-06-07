@@ -6,6 +6,11 @@
   },
   "plugins": [
     {
+      "name": "s3lab-policy",
+      "source": "./plugins/s3lab-policy",
+      "description": "Обязательный baseline: secrets-guard на git pre-commit/pre-push, общие правила для всех s3lab-проектов."
+    },
+    {
       "name": "s3lab-engineering",
       "source": "./plugins/s3lab-engineering",
       "description": "Engineering skills, agents, commands and hooks for s3lab team workflows."
