@@ -18,7 +18,7 @@ Create a mandatory, install-once Claude Code plugin (`s3lab-policy`) that, after
 - Mutate non-Claude-Code git environments (Cursor, Codex, plain shell users without Claude Code installed). The git hooks themselves are tool-agnostic and protect any caller, but distribution is via Claude Code only.
 - Build common project conventions content (commit message rules, branch naming, lint baselines). The plugin will host those later — they are separate specs.
 - Add custom s3lab-specific gitleaks rules. The MVP uses gitleaks defaults (~150 built-in patterns) plus a per-repo allowlist. Custom rules are a follow-up.
-- Prevent the user from running `git commit --no-verify` or `git push --no-verify`. Git built-in bypass is not blocked — `/policy-status` surfaces when bypass was used so reviewers can see it.
+- Prevent the user from running `git commit --no-verify` or `git push --no-verify`. Git built-in bypass is not blocked. Local detection of past bypass is not reliable (git does not record `--no-verify` anywhere readable); a future iteration may add per-commit verified-marker sidecars or server-side enforcement.
 - Cover hooks beyond pre-commit and pre-push (e.g., commit-msg, prepare-commit-msg). Not needed for secrets detection.
 
 ## 3. Decisions captured in brainstorming
@@ -32,7 +32,7 @@ Create a mandatory, install-once Claude Code plugin (`s3lab-policy`) that, after
 | Git events covered | `pre-commit` + `pre-push` |
 | Behavior if gitleaks missing | Auto-install via `brew install gitleaks` (macOS-first); if brew unavailable, print install instruction and continue (do not block install) |
 | User-managed pre-commit/pre-push without sentinel | Do NOT overwrite; print a notice and offer `/policy-status` |
-| Bypass | `--no-verify` left intact (git built-in); `/policy-status` exposes bypass usage for review visibility |
+| Bypass | `--no-verify` left intact (git built-in); past bypass not detectable from local state — follow-up adds sidecar verified-markers or server-side guard |
 
 ## 4. Plugin layout
 
@@ -249,7 +249,7 @@ No automated test harness is introduced — the plugin is integration-heavy and 
 
 - **SessionStart mutates a third-party repo without prior consent.** The first install writes files into `.git/hooks/` and creates `.s3lab-policy/`. Mitigation: explicit `systemMessage` on first install, sentinel-based idempotency, refusal to overwrite user-managed hooks, and `/policy-status` for transparent state.
 - **`brew install gitleaks` requires network and may prompt for sudo on some configurations.** Mitigation: errors during install are logged but do not block the Claude Code session; the hook itself shows a clear install instruction the next time it runs.
-- **`--no-verify` bypass.** Git itself allows commits and pushes to skip hooks. Mitigation: this spec accepts the bypass exists; `/policy-status` exposes recent bypass usage so review can challenge it. A future iteration may add a server-side guard.
+- **`--no-verify` bypass.** Git itself allows commits and pushes to skip hooks. Mitigation: this spec accepts the bypass exists. `/policy-status` cannot reliably distinguish bypassed from verified commits from local state alone (every recent commit is annotated `[unknown]`). A future iteration may add per-commit verified-marker sidecars written by the installed hooks (see §13) or a server-side guard.
 - **False positives blocking real work.** Default gitleaks rules occasionally match high-entropy strings that are not secrets. Mitigation: per-repo `[allowlist]` block in `.s3lab-policy/gitleaks.toml`. Reviewers see allowlist edits in PRs.
 - **Sentinel drift between plugin version and installed hook version.** A plugin upgrade may silently overwrite a customized hook. Mitigation: `install-policy.mjs` creates `*.bak` before overwriting any sentinel-marked file; user can diff and merge customizations forward.
 - **Worktrees and submodules.** `git rev-parse --git-dir` returns the worktree git dir, which may not be the main `.git/hooks/` directory. Mitigation: install-policy resolves and writes to whichever path `git rev-parse --git-dir` reports, which is correct for git's own resolution; if the path is not writable, the script logs and exits 0.
