@@ -190,17 +190,17 @@ This file lives at `<repo>/.s3lab-policy/gitleaks.toml` and is intended to be co
 
 ## 8. `/policy-status` slash command
 
-`commands/policy-status.md` instructs Claude to gather and print, in this exact order:
+`commands/policy-status.md` instructs Claude to gather and print, in this exact order, inside a single fenced code block:
 
-1. Plugin version (from `plugin.json`).
-2. Installed `pre-commit` and `pre-push` versions (parsed from sentinel), and whether they are user-managed.
-3. Path of `.s3lab-policy/gitleaks.toml` and its sentinel version.
-4. `gitleaks --version` output, or "not installed".
-5. Last 20 commits, each annotated with `verified` (pre-commit ran — inferred from absence of bypass markers) or `bypassed` (when the commit was created with `--no-verify`).
-   - Detection heuristic: scan `git reflog` for entries with the literal `--no-verify`. If reflog rotation has truncated, mark as "unknown" rather than guess.
-6. One-line summary: `OK` if hooks at current version and gitleaks installed; `ATTENTION` otherwise.
+1. Plugin version, read from `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json` (Claude Code injects `CLAUDE_PLUGIN_ROOT` as the plugin's installed directory). If the path does not resolve, print `unknown`.
+2. Installed `pre-commit` version (parsed from sentinel on the first 10 lines of `.git/hooks/pre-commit`), or `user-managed` if the hook exists without a sentinel, or `missing` if absent.
+3. Installed `pre-push` version, same rules against `.git/hooks/pre-push`.
+4. gitleaks config version (parsed from `# s3lab-policy v<version>` on line 1 of `.s3lab-policy/gitleaks.toml`), or `user-managed` / `missing` per the hook rules.
+5. `gitleaks version` output (`gitleaks` subcommand, no dashes), or `not installed`.
+6. The 20 most recent commits from `git log --pretty=format:'%h %s' -n 20`, each annotated `[unknown]`. The command does NOT attempt to distinguish verified from bypassed commits — bypass detection from local state is unreliable (git does not record `--no-verify` in the reflog message or anywhere readable post-hoc), so honest annotation is `[unknown]`.
+7. A one-line summary: `OK` if hook and config sentinel versions all equal the plugin version and `gitleaks` is installed; otherwise `ATTENTION`.
 
-The command body is purely a read operation — no writes, no installs, no auto-fix.
+The command body is purely a read operation — no writes, no installs, no auto-fix. If the summary is `ATTENTION`, the command lists each specific reason after the code block in plain text. It mentions `/plugin install s3lab-policy@s3lab` only if step 1's plugin manifest could not be read.
 
 ## 9. `secrets-incident-response` skill
 
@@ -240,7 +240,7 @@ Manual acceptance after implementation:
 5. **Block secret push.** Bypass commit with `--no-verify`, then `git push` against a remote: pre-push hook scans the commit range, blocks the push with a gitleaks finding.
 6. **gitleaks bootstrap.** On a machine with brew but without gitleaks, SessionStart triggers `brew install gitleaks`; subsequent commits enforce the rule.
 7. **gitleaks missing + no brew.** SessionStart emits a `please install gitleaks` systemMessage and does not abort; the hooks themselves print the install instruction and exit 1 when invoked, blocking commits until gitleaks lands.
-8. **/policy-status.** Run in the repo from acceptance 1; output lists plugin version, hook versions, gitleaks version, and at least the last 20 commits annotated `verified` or `bypassed`.
+8. **/policy-status.** Run in the repo from acceptance 1; output lists plugin version (from `${CLAUDE_PLUGIN_ROOT}`), hook versions, gitleaks config version, gitleaks binary version, and at least the last 20 commits each annotated `[unknown]`. The summary line is `OK` when sentinel versions all match the plugin version and `gitleaks` is installed.
 9. **Per-repo allowlist.** Add a regex to `.s3lab-policy/gitleaks.toml` `[allowlist]` block, commit; previously-blocked content (matching the regex) now passes pre-commit.
 
 No automated test harness is introduced — the plugin is integration-heavy and is best validated by these manual scenarios.
@@ -262,3 +262,4 @@ No automated test harness is introduced — the plugin is integration-heavy and 
 - Cross-vendor coverage (Cursor, Codex installer parity).
 - CI integration that scans PRs server-side.
 - A `policy-update` slash command that bumps installed hooks without waiting for SessionStart.
+- Reliable bypass detection. Git does not record `--no-verify` in any reflog-readable form, so `/policy-status` annotates every recent commit as `[unknown]`. A future iteration could write a per-commit sidecar marker file from the installed hooks (e.g., `.s3lab-policy/verified/<sha>`) and have `/policy-status` check membership.
