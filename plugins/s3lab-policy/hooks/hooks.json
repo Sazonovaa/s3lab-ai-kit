@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/install-policy.mjs\"",
+            "timeout": 30,
+            "statusMessage": "s3lab-policy: checking guard hooks…"
+          }
+        ]
+      }
+    ]
+  }
+}
