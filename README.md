@@ -19,7 +19,7 @@
 Что включает baseline (`s3lab-policy`):
 
 - `pre-commit` и `pre-push` блокируют коммит/push с найденным secret через `gitleaks` (~150 встроенных правил).
-- Per-repo allowlist в `.s3lab-policy/gitleaks.toml` — коммитится в репо, фиксирует команд-договорённости по false positives.
+- Per-repo allowlist в `.s3lab-policy/gitleaks.toml` — коммитится в репо, фиксирует командные договорённости по false positives.
 - Slash-команда `/policy-status` показывает текущее состояние защиты.
 - Skill `secrets-incident-response` — runbook на случай, когда secret уже попал в историю.
 - `gitleaks` ставится автоматически через `brew install gitleaks`, если его нет.
