@@ -6,17 +6,27 @@
 
 ## Marketplace (Claude Code)
 
-Репозиторий содержит Claude Code plugin marketplace в `.claude-plugin/marketplace.json`. Плагины разложены по доменам в `plugins/<имя>/`. На текущий момент полностью оформлен только демо-плагин `s3lab-engineering` (заглушка skill + slash-команда), остальные плагины — пустые скелеты.
+Репозиторий содержит Claude Code plugin marketplace в `.claude-plugin/marketplace.json`. Плагины разложены по доменам в `plugins/<имя>/`. Плагин `s3lab-policy` обязателен — устанавливайте его первым в каждом проекте: его `SessionStart` hook автоматически ставит `pre-commit` и `pre-push` с `gitleaks`-сканером в репозитории, где открыта сессия Claude Code. Остальные плагины опциональны и устанавливаются по нужде; полностью оформлен только демо-плагин `s3lab-engineering` (заглушка skill + slash-команда), `s3lab-dotnet`/`s3lab-product`/`s3lab-testing`/`s3lab-research`/`s3lab-writing` — пустые скелеты.
 
 Установка локально:
 
 ```text
 /plugin marketplace add /Users/saa/Projects/s3lab/s3lab-ai-kit
+/plugin install s3lab-policy@s3lab
 /plugin install s3lab-engineering@s3lab
 ```
 
+Что включает baseline (`s3lab-policy`):
+
+- `pre-commit` и `pre-push` блокируют коммит/push с найденным secret через `gitleaks` (~150 встроенных правил).
+- Per-repo allowlist в `.s3lab-policy/gitleaks.toml` — коммитится в репо, фиксирует команд-договорённости по false positives.
+- Slash-команда `/policy-status` показывает текущее состояние защиты.
+- Skill `secrets-incident-response` — runbook на случай, когда secret уже попал в историю.
+- `gitleaks` ставится автоматически через `brew install gitleaks`, если его нет.
+
 Доступные плагины:
 
+- `s3lab-policy` — Обязательный baseline: secrets-guard на git pre-commit/pre-push, общие правила для всех s3lab-проектов.
 - `s3lab-engineering` — Engineering skills, agents, commands and hooks for s3lab team workflows.
 - `s3lab-dotnet` — .NET 10 backend skills and agents (Clean Architecture, CQRS, infrastructure). *skeleton*
 - `s3lab-product` — Product skills: PRD/MVP preparation, sprint acceptance criteria. *skeleton*
