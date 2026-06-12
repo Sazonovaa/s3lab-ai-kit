@@ -161,11 +161,11 @@ Final return to main thread, exact format:
 ```
 LOOP COMPLETE
 Iterations: <n> / 3
-Verdict: <done|max_rounds_reached|refine_failed>
+Verdict: <done|max_rounds_reached|refine_failed|error>
 Notes: <comma-separated notes, or "none">
 
 --- DRAFT ---
-<full final draft text>
+<full final draft text, or "(none)" if error>
 ```
 
 ## 7. Stops, errors, fallbacks
