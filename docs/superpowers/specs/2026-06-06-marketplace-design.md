@@ -16,7 +16,6 @@ The MVP delivers the marketplace skeleton plus one demo plugin with stub content
 - Filling all six domain plugins with real skills/agents — this spec covers structure only.
 - Publishing the marketplace to a remote registry or central catalog.
 - Supporting non-Claude-Code clients (Cursor, Codex) through this marketplace — those keep their own `.cursor/`, `.codex/` configs out of scope here.
-- Migrating prior `.ai/**` content from git history (commit `f567b94` and earlier). Migration may happen later but is not part of this spec.
 
 ## 3. Decisions captured in brainstorming
 
@@ -205,7 +204,6 @@ No automated tests are introduced in this spec — marketplace structure is conf
 ## 11. Out of scope / future iterations
 
 - Filling `s3lab-dotnet`, `s3lab-product`, `s3lab-testing`, `s3lab-research`, `s3lab-writing` with real skills/agents/commands/hooks (one spec per domain later).
-- Migrating prior `.ai/**` content from git history into the new plugin layout.
 - Wiring hooks (e.g., AI usage logging, CRLF guard) into plugin `hooks/` directories.
 - Publishing the marketplace through git submodule, remote URL source, or shared registry.
 - Cross-vendor coverage (Cursor, Codex) — handled by separate vendor configs, not the marketplace.

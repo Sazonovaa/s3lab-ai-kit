@@ -33,7 +33,7 @@
 
 ## Правила недетерминизма и ambient-зависимостей
 
-- Прямые обращения к недетерминистичным / ambient API в production-коде (Domain, Application, Infrastructure handlers и services) запрещены. Источник истины и детальный чек-лист — [`.ai/skills/engineering/ambient_dependencies_audit.md`](../../.ai/skills/engineering/ambient_dependencies_audit.md).
+- Прямые обращения к недетерминистичным / ambient API в production-коде (Domain, Application, Infrastructure handlers и services) запрещены.
 - Замена должна быть выполнена через port-интерфейс, который пробрасывается через конструктор и мокается в тестах `Mock<T>`:
   - `DateTime.UtcNow`, `DateTime.Now`, `DateTimeOffset.UtcNow`, `DateTimeOffset.Now` → `IClock` (или `TimeProvider`).
   - `Guid.NewGuid()`, `Guid.CreateVersion7()` → `IGuidProvider`.
