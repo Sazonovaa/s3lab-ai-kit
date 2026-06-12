@@ -4,8 +4,6 @@ useDefault = true
 
 [allowlist]
 description = "Per-repo overrides — add paths or regexes here to silence false positives. Commit this file so the team agrees on what is allowlisted."
-# gitleaks >=8.30 requires allowlist to declare at least one of commits/paths/regexes/stopwords.
-# Placeholder stopword never appears in real code; replace with real entries when needed.
-stopwords = ["__s3lab_policy_placeholder_never_match__"]
-paths = []
-regexes = []
+# Fake AWS key used as a demo string in the policy plugin design/plan docs.
+# Not a real credential; pattern is "AKIA" + sequential digits + ABCDEF.
+regexes = ['''AKIA1234567890ABCDEF''']
