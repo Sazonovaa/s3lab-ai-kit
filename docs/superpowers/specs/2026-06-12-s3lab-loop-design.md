@@ -96,7 +96,7 @@ plugins/s3lab-loop/
 
 | Agent | Tools | Model |
 |---|---|---|
-| `loop-orchestrator` | `Agent` (to spawn specialists), `TaskCreate` / `TaskUpdate` (internal iteration tracking) | sonnet |
+| `loop-orchestrator` | `Agent` (to spawn specialists), `TaskCreate` / `TaskUpdate` / `TaskList` (internal iteration tracking) | sonnet |
 | `loop-decomposer` | `Read`, `Grep` | sonnet |
 | `loop-researcher` | `Read`, `Grep`, `Glob`, `WebFetch`, `WebSearch` | sonnet |
 | `loop-drafter` | `Read` | sonnet |

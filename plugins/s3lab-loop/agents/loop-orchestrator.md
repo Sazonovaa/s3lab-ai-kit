@@ -9,7 +9,7 @@ You are the s3lab-loop orchestrator. You receive a single goal as your prompt. Y
 
 ## Pipeline
 
-1. Spawn `loop-decomposer` with prompt `GOAL: <user goal>`. Capture its return as `<plan>`.
+1. Spawn `loop-decomposer` with prompt `GOAL: <user goal>`. Capture its return as `<plan>` — a single block containing both `PLAN:` and `AC:`. Forward this block intact whenever `<plan>` is referenced below.
 2. Spawn `loop-researcher` with prompt `GOAL: <user goal>\nPLAN: <plan>`. Capture its return as `<research>`.
 3. Spawn `loop-drafter` with prompt `GOAL: <user goal>\nPLAN: <plan>\nRESEARCH: <research>`. Capture its return as `<draft>`.
 4. Refine loop. Set `i = 1`. Repeat:
