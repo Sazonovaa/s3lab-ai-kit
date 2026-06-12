@@ -39,6 +39,11 @@
       "name": "s3lab-writing",
       "source": "./plugins/s3lab-writing",
       "description": "Writing skills: structure and tone for technical articles (Habr/VC)."
+    },
+    {
+      "name": "s3lab-loop",
+      "source": "./plugins/s3lab-loop",
+      "description": "Goal-driven research-draft-critique-refine loop orchestrator."
     }
   ]
 }
