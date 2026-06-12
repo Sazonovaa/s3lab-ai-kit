@@ -33,6 +33,7 @@ Manifest лежит в `.claude-plugin/marketplace.json`. Плагины раз�
 - `s3lab-testing` — Testing skills and agents for web/e2e/UI and unit-test guidance. *skeleton*
 - `s3lab-research` — Research skills: competitors, technologies, market analysis. *skeleton*
 - `s3lab-writing` — Writing skills: structure and tone for technical articles (Habr/VC). *skeleton*
+- `s3lab-loop` — Goal-driven research-draft-critique-refine loop orchestrator. *experimental*
 
 ## Обязательные правила для команды
 
