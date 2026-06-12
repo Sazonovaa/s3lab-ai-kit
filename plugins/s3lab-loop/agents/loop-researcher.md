@@ -30,4 +30,4 @@ Source format:
 - Soft cap: 500 words total across all bullets.
 - Cite every non-trivial claim. No fact without `[source]`.
 - If `WebFetch`/`WebSearch` fails, continue with what you have from the repo.
-- If all sources fail and you have nothing concrete, return `RESEARCH:\n- (none)`.
+- If all sources fail and you have nothing concrete, return `RESEARCH: <empty>`.
