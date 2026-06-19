@@ -1,6 +1,6 @@
 # s3lab-ai-kit
 
-`s3lab-ai-kit` — Claude Code plugin marketplace для команды s3lab/TISS. Стандартные политики, skills, subagents и hooks упакованы в плагины и подключаются через `/plugin install`.
+`s3lab-ai-kit` — plugin marketplace для команды s3lab/TISS с поддержкой Claude Code и Codex. Стандартные политики, skills, subagents и hooks упакованы в плагины и подключаются через marketplace соответствующего инструмента.
 
 Репозиторий нужен, чтобы все AI-инструменты команды работали по одним правилам: соблюдали security policy, выполняли обязательный review flow и не зависели от устных договорённостей.
 
@@ -16,7 +16,21 @@ Manifest лежит в `.claude-plugin/marketplace.json`. Плагины раз�
 /plugin install s3lab-engineering@s3lab
 ```
 
-Что включает baseline (`s3lab-policy`):
+## Marketplace (Codex)
+
+Codex marketplace лежит в `.agents/plugins/marketplace.json`. Codex-совместимые manifests лежат рядом с Claude manifests в `plugins/<имя>/.codex-plugin/plugin.json`, поэтому один и тот же каталог `plugins/<имя>/` остается источником для обоих инструментов.
+
+Установка локально:
+
+```bash
+codex plugin marketplace add /Users/saa/Projects/s3lab/s3lab-ai-kit
+codex
+/plugins
+```
+
+В `/plugins` выберите marketplace `s3lab`, установите нужные плагины и начните новый thread. Сейчас в Codex как reusable content подключаются только `skills/`: доступны `s3lab-policy` (`secrets-incident-response`) и `s3lab-engineering` (`hello-engineering`). Claude-only `commands/`, `agents/` и `hooks/` остаются в репозитории, но Codex этим изменением их не устанавливает как slash-команды, subagents или hooks.
+
+Что включает baseline (`s3lab-policy`) в Claude Code; в Codex сейчас подключается только skill `secrets-incident-response`:
 
 - `pre-commit` и `pre-push` блокируют коммит/push с найденным secret через `gitleaks` (~150 встроенных правил).
 - Per-repo allowlist в `.s3lab-policy/gitleaks.toml` — коммитится в репо, фиксирует командные договорённости по false positives.

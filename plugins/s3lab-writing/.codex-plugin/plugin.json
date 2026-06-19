@@ -1,0 +1,19 @@
+{
+  "name": "s3lab-writing",
+  "version": "0.1.0",
+  "description": "Writing skills for technical article structure and tone.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "interface": {
+    "displayName": "s3lab Writing",
+    "shortDescription": "Writing workflow package for s3lab.",
+    "longDescription": "s3lab Writing is a Codex-ready plugin skeleton for future technical writing skills. It currently contains no Codex skills.",
+    "developerName": "s3lab",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Use s3lab Writing guidance for a technical article.",
+    "brandColor": "#2563EB"
+  }
+}

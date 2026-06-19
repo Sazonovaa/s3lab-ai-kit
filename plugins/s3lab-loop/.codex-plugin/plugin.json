@@ -1,0 +1,19 @@
+{
+  "name": "s3lab-loop",
+  "version": "0.1.0",
+  "description": "Goal-driven research-draft-critique-refine loop orchestrator.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "interface": {
+    "displayName": "s3lab Loop",
+    "shortDescription": "Loop workflow package for s3lab.",
+    "longDescription": "s3lab Loop is a Codex-ready plugin skeleton for future loop orchestration skills. Existing Claude subagents and slash commands are not installed by Codex.",
+    "developerName": "s3lab",
+    "category": "Developer Tools",
+    "capabilities": [],
+    "defaultPrompt": "Use s3lab Loop guidance for a research-draft-critique-refine workflow.",
+    "brandColor": "#2563EB"
+  }
+}

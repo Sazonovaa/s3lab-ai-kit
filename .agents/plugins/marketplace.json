@@ -1,0 +1,104 @@
+{
+  "name": "s3lab",
+  "interface": {
+    "displayName": "s3lab AI Kit"
+  },
+  "plugins": [
+    {
+      "name": "s3lab-policy",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-policy"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Security"
+    },
+    {
+      "name": "s3lab-engineering",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-engineering"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "s3lab-dotnet",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-dotnet"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "s3lab-product",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-product"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "s3lab-testing",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-testing"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "s3lab-research",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-research"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "s3lab-writing",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-writing"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "s3lab-loop",
+      "source": {
+        "source": "local",
+        "path": "./plugins/s3lab-loop"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

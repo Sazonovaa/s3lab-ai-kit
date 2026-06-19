@@ -1,0 +1,19 @@
+{
+  "name": "s3lab-research",
+  "version": "0.1.0",
+  "description": "Research skills for competitors, technologies, and market analysis.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "interface": {
+    "displayName": "s3lab Research",
+    "shortDescription": "Research workflow package for s3lab.",
+    "longDescription": "s3lab Research is a Codex-ready plugin skeleton for future competitor, technology, and market research skills. It currently contains no Codex skills.",
+    "developerName": "s3lab",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Use s3lab Research guidance for a market research task.",
+    "brandColor": "#2563EB"
+  }
+}

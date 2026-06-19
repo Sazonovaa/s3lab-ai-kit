@@ -1,0 +1,22 @@
+{
+  "name": "s3lab-engineering",
+  "version": "0.1.0",
+  "description": "Engineering skills for s3lab team workflows.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "s3lab Engineering",
+    "shortDescription": "Engineering workflow skills for s3lab.",
+    "longDescription": "s3lab Engineering packages reusable Codex engineering skills. The current skill is a placeholder confirming plugin installation; real engineering workflows can be added later.",
+    "developerName": "s3lab",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": "Use s3lab Engineering to confirm the plugin is installed.",
+    "brandColor": "#2563EB"
+  }
+}

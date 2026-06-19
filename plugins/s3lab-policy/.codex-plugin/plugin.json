@@ -1,0 +1,22 @@
+{
+  "name": "s3lab-policy",
+  "version": "0.1.0",
+  "description": "s3lab baseline policy skills for secrets incident response and team safety workflows.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "s3lab Policy",
+    "shortDescription": "Baseline policy skills for s3lab projects.",
+    "longDescription": "s3lab Policy packages reusable Codex skills for security policy and secrets incident response. Claude-specific hooks and slash commands remain available only in Claude Code.",
+    "developerName": "s3lab",
+    "category": "Security",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": "Use s3lab Policy for a secrets incident response workflow.",
+    "brandColor": "#2563EB"
+  }
+}

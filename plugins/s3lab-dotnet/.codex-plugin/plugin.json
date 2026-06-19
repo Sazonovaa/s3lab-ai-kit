@@ -1,0 +1,19 @@
+{
+  "name": "s3lab-dotnet",
+  "version": "0.1.0",
+  "description": ".NET backend skills and agents for s3lab projects.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "interface": {
+    "displayName": "s3lab .NET",
+    "shortDescription": ".NET backend workflow package for s3lab.",
+    "longDescription": "s3lab .NET is a Codex-ready plugin skeleton for future backend skills. It currently contains no Codex skills.",
+    "developerName": "s3lab",
+    "category": "Developer Tools",
+    "capabilities": [],
+    "defaultPrompt": "Use s3lab .NET guidance for a backend architecture task.",
+    "brandColor": "#2563EB"
+  }
+}

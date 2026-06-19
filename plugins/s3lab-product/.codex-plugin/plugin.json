@@ -1,0 +1,19 @@
+{
+  "name": "s3lab-product",
+  "version": "0.1.0",
+  "description": "Product skills for PRD, MVP, and acceptance criteria workflows.",
+  "author": {
+    "name": "s3lab",
+    "email": "sien.inbox@gmail.com"
+  },
+  "interface": {
+    "displayName": "s3lab Product",
+    "shortDescription": "Product workflow package for s3lab.",
+    "longDescription": "s3lab Product is a Codex-ready plugin skeleton for future PRD, MVP, and acceptance criteria skills. It currently contains no Codex skills.",
+    "developerName": "s3lab",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Use s3lab Product guidance for product planning.",
+    "brandColor": "#2563EB"
+  }
+}
